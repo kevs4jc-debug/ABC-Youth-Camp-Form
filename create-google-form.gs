@@ -219,11 +219,11 @@ function createYouthCampForm() {
 
     // Now set education branching choices (all target pages now exist).
     eduQ.setChoices([
-      eduQ.createChoice('Primary School',        FormApp.PageNavigationType.GO_TO_PAGE, priSecPage),
-      eduQ.createChoice('Secondary School',      FormApp.PageNavigationType.GO_TO_PAGE, priSecPage),
-      eduQ.createChoice('Tertiary / Vocational', FormApp.PageNavigationType.GO_TO_PAGE, tertiaryPage),
-      eduQ.createChoice('Working Professional',  FormApp.PageNavigationType.GO_TO_PAGE, professionalPage),
-      eduQ.createChoice('Other',                 FormApp.PageNavigationType.GO_TO_PAGE, healthPage)
+      eduQ.createChoice('Primary School',        priSecPage),
+      eduQ.createChoice('Secondary School',      priSecPage),
+      eduQ.createChoice('Tertiary / Vocational', tertiaryPage),
+      eduQ.createChoice('Working Professional',  professionalPage),
+      eduQ.createChoice('Other',                 healthPage)
     ]);
 
     var medQ = form.addMultipleChoiceItem()
@@ -267,8 +267,8 @@ function createYouthCampForm() {
 
     // Medical condition branching choices (both target pages now exist).
     medQ.setChoices([
-      medQ.createChoice('Yes', FormApp.PageNavigationType.GO_TO_PAGE, medDetailsPage),
-      medQ.createChoice('No',  FormApp.PageNavigationType.GO_TO_PAGE, lifestylePage)
+      medQ.createChoice('Yes', medDetailsPage),
+      medQ.createChoice('No',  lifestylePage)
     ]);
 
     form.addMultipleChoiceItem()
@@ -369,11 +369,11 @@ function createYouthCampForm() {
     ),
     paymentQ.createChoice(
       'No. I will need assistance for payment.',
-      FormApp.PageNavigationType.GO_TO_PAGE, assistancePage
+      assistancePage
     ),
     paymentQ.createChoice(
       'Yes I am able to pay the full amount, and I am willing to donate some more to assist in the running of the camp.',
-      FormApp.PageNavigationType.GO_TO_PAGE, donationPage
+      donationPage
     )
   ]);
 
@@ -384,14 +384,8 @@ function createYouthCampForm() {
     var q        = moreCampersItems[i];
     var nextPage = camperBasicPages[i + 1]; // next camper's basic info section
     q.setChoices([
-      q.createChoice(
-        'Yes, I have another camper to register',
-        FormApp.PageNavigationType.GO_TO_PAGE, nextPage
-      ),
-      q.createChoice(
-        'No, that is all the campers',
-        FormApp.PageNavigationType.GO_TO_PAGE, paymentPage
-      )
+      q.createChoice('Yes, I have another camper to register', nextPage),
+      q.createChoice('No, that is all the campers',            paymentPage)
     ]);
   }
 
