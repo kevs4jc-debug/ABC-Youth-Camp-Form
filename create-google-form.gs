@@ -203,15 +203,9 @@ function updateYouthCampForm() {
 
     var eduQ = form.addMultipleChoiceItem()
       .setTitle("What is " + label + "'s current education or employment status?")
+      .showOtherOption(true)  // must be set BEFORE navigation choices are applied
       .setRequired(true);
 
-    // Optional free-text field placed right below the radio buttons so that
-    // campers who select "Other" can describe their status inline.
-    // (Google Forms does not allow showOtherOption on questions with page
-    // navigation, so this is the closest equivalent.)
-    form.addTextItem()
-      .setTitle('If "Other" – please describe the education or employment status here')
-      .setHelpText('Leave blank if you selected one of the named options above.');
     // Choices set further below once all target page references exist.
 
     // ── Primary / Secondary School Details ────────────────────────────────
@@ -279,14 +273,13 @@ function updateYouthCampForm() {
     eduStatusPage.setGoToPage(healthPage);
 
     // Named choices branch to their detail sections.
-    // "Other" goes straight to healthPage because the text field above
-    // already captures the camper's status in the same section.
+    // "Other" (with its inline text field) follows eduStatusPage's default
+    // navigation → healthPage, set via eduStatusPage.setGoToPage() above.
     eduQ.setChoices([
       eduQ.createChoice('Primary School',        priSecPage),
       eduQ.createChoice('Secondary School',      priSecPage),
       eduQ.createChoice('Tertiary / Vocational', tertiaryPage),
-      eduQ.createChoice('Working Professional',  professionalPage),
-      eduQ.createChoice('Other',                 healthPage)
+      eduQ.createChoice('Working Professional',  professionalPage)
     ]);
 
     var medQ = form.addMultipleChoiceItem()
