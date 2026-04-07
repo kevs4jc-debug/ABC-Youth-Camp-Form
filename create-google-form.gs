@@ -1,62 +1,118 @@
 /**
- * 2026 ABC Youth Camp – Google Form Creator
- * ==========================================
- * This Google Apps Script recreates the full JotForm registration in Google Forms,
- * including section-based conditional logic (education paths, medical branching).
+ * 2026 ABC Youth Camp – Update Existing Google Form
+ * ==================================================
+ * This script UPDATES the already-created form in-place so the same
+ * fill-in URL continues to work.  It clears all existing content and
+ * rebuilds the form from scratch with every change listed below.
  *
- * HOW TO USE:
- *   1. Go to https://script.google.com and click "New project".
- *   2. Delete any existing code in the editor.
- *   3. Paste this entire script into the editor.
- *   4. Click Run → createYouthCampForm (you may need to grant permissions the first time).
- *   5. After it runs, open the "Execution log" (View → Logs) to find the form URL.
- *   6. Open the link to review and publish your new Google Form.
+ * FORM URLs
+ *   Fill-in : https://docs.google.com/forms/d/e/1FAIpQLScvUL-b9WMIVA5BLyk-S0BPqFsI1glQA06Zckx3Q7kw8VY_uw/viewform
+ *   Edit    : https://docs.google.com/forms/d/1zQ53mV8LAcEd_jJr5bJ05aLWCa32pGRpZrvhylhywTY/edit
  *
- * NOTE ON CONDITIONAL LOGIC:
- *   Google Forms supports section-level branching (not per-question visibility).
- *   This script implements branching via separate sections for:
- *     - Education/employment status paths (Primary/Secondary, Tertiary, Professional)
- *     - Medical condition details (shown only when camper has a condition)
- *   Other follow-up questions (allergy details, medication details, etc.) use
- *   helper text to indicate they are conditional (e.g. "Complete only if yes").
+ * HOW TO RUN
+ *   1. Open https://script.google.com → New project.
+ *   2. Paste this entire file into Code.gs.
+ *   3. Click Run → updateYouthCampForm.
+ *   4. Grant permissions when prompted.
+ *   5. The SAME form URL now reflects all changes.
  *
- * NOTE ON CASCADING LOCATION:
- *   The original JotForm had a cascading country→state→city dropdown powered by
- *   a JotForm API. Google Forms does not support cascading dropdowns, so Location
- *   is replaced with a single dropdown listing the known Fiji locations.
+ * MANUAL STEPS AFTER RUNNING  (cannot be done via Apps Script)
+ *   • Header image  : Form editor → palette icon (Customize theme)
+ *                     → Choose image → upload the groups diagram (image.jpeg).
+ *   • Theme colour  : Same palette menu → pick a warm earth tone
+ *                     (e.g. the deep orange/brown from the logo).
+ *   • Progress bar  : Settings → Presentation → Show progress bar.
+ *
+ * CHANGES APPLIED vs. PREVIOUS VERSION
+ *   1.  Updates the existing form (no new URL needed).
+ *   2.  Welcome / overview section added before organiser questions.
+ *   3.  Registration deadline 19 Apr 2026 | Payment deadline 30 Apr 2026.
+ *   4.  "Organiser Information" → "Parents and Guardians Information".
+ *   5.  Phone number field added for parent/guardian.
+ *   6.  Camper count extended to 10 (was 6).
+ *   7.  Coordinator question → "Is Camper N a coordinator?"
+ *   8.  Email + phone contact fields added per camper.
+ *   9.  Education "Other" → dedicated text-entry section → health section.
+ *   10. "Are you registering another camper?" help text uses "next section".
+ *   11. Payment question reworded: "Please select one of the options below…"
+ *   12. Payment options reworded – "full amount" wording removed.
+ *   13. Payment Assistance amount question removed.
+ *   14. Donation section only branches from the donate option (fixed).
+ *   15. Confirmation message includes Salote & Laisane contact details.
  */
 
-function createYouthCampForm() {
-  var form = FormApp.create('2026 ABC Youth Camp Registration Form');
+// ── Configuration ──────────────────────────────────────────────────────────
+var FORM_ID       = '1zQ53mV8LAcEd_jJr5bJ05aLWCa32pGRpZrvhylhywTY';
+var TOTAL_CAMPERS = 10;
+
+// ── Main function ──────────────────────────────────────────────────────────
+function updateYouthCampForm() {
+
+  var form = FormApp.openById(FORM_ID);
+
+  // ── 1. Clear every existing item ────────────────────────────────────────
+  var existing = form.getItems();
+  for (var i = existing.length - 1; i >= 0; i--) {
+    form.deleteItem(existing[i]);
+  }
+
+  // ── 2. Form-level metadata ───────────────────────────────────────────────
   form.setTitle('2026 ABC Youth Camp Registration Form');
   form.setDescription(
-    'ABC Ministry – 2026 Youth Camp Registration\n\n' +
-    'Please complete all required fields accurately. ' +
-    'If you are registering multiple campers, work through each Camper section in order. ' +
-    'Camp fee details and payment instructions will be communicated separately.\n\n' +
-    'Fields marked with * are required.'
+    'Welcome to ABC Youth Camp 2026!\n\n' +
+    'This camp is designed to empower young people through spiritual growth, ' +
+    'leadership development, and community connection.\n\n' +
+    '─────────────────────────────────\n' +
+    'Registration Deadline : 19 April 2026\n' +
+    'Payment Deadline      : 30 April 2026\n' +
+    '─────────────────────────────────\n\n' +
+    'Please complete all required fields (*) accurately.\n\n' +
+    'For enquiries:\n' +
+    '  Finance   – Salote  : salotesoroaqali@gmail.com\n' +
+    '  Logistics – Laisane : l.tubuna@gmail.com'
+  );
+  form.setConfirmationMessage(
+    'Thank you for registering for the 2026 ABC Youth Camp!\n\n' +
+    'Your registration has been successfully submitted. ' +
+    'We look forward to seeing you at camp!\n\n' +
+    'If you have any questions please reach out to:\n' +
+    '  Finance queries : Salote – salotesoroaqali@gmail.com\n' +
+    '  Camp logistics  : Laisane – l.tubuna@gmail.com'
   );
   form.setIsQuiz(false);
   form.setAllowResponseEdits(true);
-  form.setCollectEmail(false); // Organizer email is captured as a question
+  form.setShowLinkToRespondAgain(false);
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // SECTION 1 – ORGANIZER INFORMATION  (implicit first section – no page break)
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ── 3. WELCOME SECTION (no page break – first visible section) ──────────
   form.addSectionHeaderItem()
-    .setTitle('Section 1 – Organizer Information')
-    .setHelpText('Please provide your details as the person completing this registration.');
+    .setTitle('About This Camp')
+    .setHelpText(
+      'ABC Youth Camp 2026 is a transformative experience designed to empower young ' +
+      'people through spiritual growth, leadership development, and community connection. ' +
+      'We are excited to journey with your family and look forward to an amazing camp together!\n\n' +
+      'Registration closes 19 April 2026  |  Payment due by 30 April 2026'
+    );
+
+  // ── 4. PARENTS AND GUARDIANS INFORMATION ────────────────────────────────
+  form.addSectionHeaderItem()
+    .setTitle('Parents and Guardians Information')
+    .setHelpText('Please provide your contact details as the parent or guardian completing this registration.');
 
   form.addTextItem()
-    .setTitle('Your Full Name')
+    .setTitle('Full Name')
     .setRequired(true);
 
   form.addTextItem()
-    .setTitle('Your Email Address')
+    .setTitle('Email Address')
+    .setRequired(true);
+
+  form.addTextItem()
+    .setTitle('Phone Number')
+    .setHelpText('Include country code if overseas, e.g. +679 777 1234')
     .setRequired(true);
 
   form.addMultipleChoiceItem()
-    .setTitle('Please select your Kingdom Community')
+    .setTitle('Kingdom Community')
     .setChoiceValues([
       'Advanced Breakthrough Centre',
       'Mataka Vou Kingdom Community'
@@ -67,31 +123,27 @@ function createYouthCampForm() {
   form.addMultipleChoiceItem()
     .setTitle('How many campers will you be registering?')
     .setChoiceValues([
-      'One Camper',
-      'Two Campers',
-      'Three Campers',
-      'Four Campers',
-      'Five Campers',
-      'Six Campers'
+      '1 Camper',  '2 Campers', '3 Campers', '4 Campers',  '5 Campers',
+      '6 Campers', '7 Campers', '8 Campers', '9 Campers', '10 Campers'
     ])
     .setRequired(true);
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // CAMPER SECTIONS (1 – 6)
-  // ─────────────────────────────────────────────────────────────────────────────
-  // References needed for cross-section branching setup (filled per camper):
-  var camperBasicPages  = [];  // First section of each camper (used by "more campers?" choices)
-  var moreCampersItems  = [];  // "Register another camper?" items for campers 1-5
+  // ── 5. CAMPER SECTIONS (1 – 10) ─────────────────────────────────────────
+  var camperBasicPages = [];
+  var moreCampersItems = [];
 
-  var TOTAL_CAMPERS = 6;
+  var ORDINALS = [
+    'First','Second','Third','Fourth','Fifth',
+    'Sixth','Seventh','Eighth','Ninth','Tenth'
+  ];
 
   for (var n = 1; n <= TOTAL_CAMPERS; n++) {
     var label  = 'Camper ' + n;
     var isLast = (n === TOTAL_CAMPERS);
 
-    // ── BASIC INFORMATION ────────────────────────────────────────────────────
+    // ── Basic Information ──────────────────────────────────────────────────
     var basicPage = form.addPageBreakItem()
-      .setTitle('Section ' + (n + 1) + ' – ' + label + ': Basic Information');
+      .setTitle(label + ' – Basic Information');
     if (n > 1) {
       basicPage.setHelpText(
         'Complete this section only if you are registering ' + n + ' or more campers.'
@@ -103,35 +155,29 @@ function createYouthCampForm() {
       .setTitle(label + "'s Full Name")
       .setRequired(true);
 
+    form.addTextItem()
+      .setTitle(label + "'s Email Address")
+      .setHelpText("Enter the camper's email address if they have one.");
+
+    form.addTextItem()
+      .setTitle(label + "'s Phone Contact")
+      .setHelpText("Enter the camper's mobile number.");
+
     form.addDateItem()
       .setTitle(label + "'s Date of Birth")
       .setRequired(true);
 
-    // Location — single dropdown (replaces cascading country→state→city from JotForm)
     form.addMultipleChoiceItem()
       .setTitle('Location of ' + label)
-      .setChoiceValues([
-        'Suva',
-        'Lautoka',
-        'Nadi',
-        'Levuka',
-        'Vanua Levu',
-        'Overseas'
-      ])
+      .setChoiceValues(['Suva', 'Lautoka', 'Nadi', 'Levuka', 'Vanua Levu', 'Overseas'])
       .showOtherOption(true)
       .setRequired(true);
 
     form.addMultipleChoiceItem()
       .setTitle("What is " + label + "'s People's Group?")
       .setChoiceValues([
-        'Project Heritage',
-        'Evolution',
-        'X-Elle GPS',
-        'Hebron GPS',
-        'X-Elle',
-        'Charis',
-        'Hebron',
-        'Not yet in a PG'
+        'Project Heritage', 'Evolution', 'X-Elle GPS', 'Hebron GPS',
+        'X-Elle', 'Charis', 'Hebron', 'Not yet in a PG'
       ])
       .setRequired(true);
 
@@ -140,25 +186,18 @@ function createYouthCampForm() {
       .setChoiceValues(['Yes', 'No'])
       .setRequired(true);
 
-    // ── EDUCATION & EMPLOYMENT STATUS (branching question) ───────────────────
+    // ── Education & Employment Status (branching question) ─────────────────
     form.addPageBreakItem()
-      .setTitle(label + ': Education & Employment Status');
+      .setTitle(label + ' – Education & Employment Status');
 
     var eduQ = form.addMultipleChoiceItem()
       .setTitle("What is " + label + "'s current education or employment status?")
-      .setHelpText(
-        'Primary School → school details section\n' +
-        'Secondary School → school details section\n' +
-        'Tertiary / Vocational → tertiary details section\n' +
-        'Working Professional → employment details section\n' +
-        'Other → health section'
-      )
       .setRequired(true);
-    // eduQ choices are set further below once target section objects exist.
+    // Choices set further below once all target page references exist.
 
-    // ── PRIMARY / SECONDARY SCHOOL DETAILS ──────────────────────────────────
+    // ── Primary / Secondary School Details ────────────────────────────────
     var priSecPage = form.addPageBreakItem()
-      .setTitle(label + ': School Details (Primary / Secondary)');
+      .setTitle(label + ' – School Details (Primary / Secondary)');
 
     form.addTextItem()
       .setTitle("Name of " + label + "'s school")
@@ -172,9 +211,9 @@ function createYouthCampForm() {
       ])
       .setRequired(true);
 
-    // ── TERTIARY EDUCATION DETAILS ───────────────────────────────────────────
+    // ── Tertiary Education Details ─────────────────────────────────────────
     var tertiaryPage = form.addPageBreakItem()
-      .setTitle(label + ': Tertiary Education Details');
+      .setTitle(label + ' – Tertiary Education Details');
 
     form.addMultipleChoiceItem()
       .setTitle("Which tertiary institution does " + label + " attend?")
@@ -193,11 +232,11 @@ function createYouthCampForm() {
     form.addMultipleChoiceItem()
       .setTitle("What is " + label + "'s employment status? (if also employed)")
       .setChoiceValues(['Full Time', 'Part Time'])
-      .setHelpText("Leave blank if not currently employed alongside studies.");
+      .setHelpText('Leave blank if not currently employed alongside studies.');
 
-    // ── EMPLOYMENT / PROFESSIONAL DETAILS ────────────────────────────────────
+    // ── Employment / Professional Details ──────────────────────────────────
     var professionalPage = form.addPageBreakItem()
-      .setTitle(label + ': Employment Details');
+      .setTitle(label + ' – Employment Details');
 
     form.addTextItem()
       .setTitle("What is " + label + "'s occupation?")
@@ -208,22 +247,33 @@ function createYouthCampForm() {
       .setChoiceValues(['Full Time', 'Part Time'])
       .setRequired(true);
 
-    // ── HEALTH & MEDICAL (branching question) ────────────────────────────────
-    var healthPage = form.addPageBreakItem()
-      .setTitle(label + ': Health & Medical');
+    // ── Other Education / Employment Status ────────────────────────────────
+    // "Other" routes here so the camper can describe their status in a text
+    // field before continuing to the health section.
+    var otherEduPage = form.addPageBreakItem()
+      .setTitle(label + ' – Other Education / Employment Status');
 
-    // All three education detail sections end here.
+    form.addTextItem()
+      .setTitle("Please describe " + label + "'s education or employment status")
+      .setRequired(true);
+
+    // ── Health & Medical (branching question) ──────────────────────────────
+    var healthPage = form.addPageBreakItem()
+      .setTitle(label + ' – Health & Medical');
+
+    // All education detail sections (including Other) end at healthPage.
     priSecPage.setGoToPage(healthPage);
     tertiaryPage.setGoToPage(healthPage);
     professionalPage.setGoToPage(healthPage);
+    otherEduPage.setGoToPage(healthPage);
 
-    // Now set education branching choices (all target pages now exist).
+    // Set education branching choices (all target pages now exist).
     eduQ.setChoices([
       eduQ.createChoice('Primary School',        priSecPage),
       eduQ.createChoice('Secondary School',      priSecPage),
       eduQ.createChoice('Tertiary / Vocational', tertiaryPage),
       eduQ.createChoice('Working Professional',  professionalPage),
-      eduQ.createChoice('Other',                 healthPage)
+      eduQ.createChoice('Other',                 otherEduPage)
     ]);
 
     var medQ = form.addMultipleChoiceItem()
@@ -232,9 +282,9 @@ function createYouthCampForm() {
       .setRequired(true);
     // medQ choices set below once medDetailsPage exists.
 
-    // ── MEDICAL CONDITION DETAILS ─────────────────────────────────────────────
+    // ── Medical Condition Details ──────────────────────────────────────────
     var medDetailsPage = form.addPageBreakItem()
-      .setTitle(label + ': Medical Condition Details');
+      .setTitle(label + ' – Medical Condition Details');
 
     form.addParagraphTextItem()
       .setTitle("Please describe " + label + "'s current medical condition(s)")
@@ -246,7 +296,7 @@ function createYouthCampForm() {
       .setRequired(true);
 
     form.addParagraphTextItem()
-      .setTitle("If yes above – please explain how the condition affects participation in physical activities")
+      .setTitle("If yes above – please explain how the condition affects participation")
       .setHelpText('Complete only if the condition affects physical activities.');
 
     form.addMultipleChoiceItem()
@@ -258,14 +308,14 @@ function createYouthCampForm() {
       .setTitle("If yes – please state the medication(s) " + label + " is taking")
       .setHelpText('Complete only if the camper is currently on medication.');
 
-    // ── ALLERGIES, ACTIVITIES & TRAVEL ───────────────────────────────────────
+    // ── Allergies, Activities & Travel ────────────────────────────────────
     var lifestylePage = form.addPageBreakItem()
-      .setTitle(label + ': Allergies, Activities & Travel');
+      .setTitle(label + ' – Allergies, Activities & Travel');
 
-    // Medical details section always ends at lifestyle page.
+    // Medical details always ends at lifestyle page.
     medDetailsPage.setGoToPage(lifestylePage);
 
-    // Medical condition branching choices (both target pages now exist).
+    // Medical condition branching choices.
     medQ.setChoices([
       medQ.createChoice('Yes', medDetailsPage),
       medQ.createChoice('No',  lifestylePage)
@@ -277,7 +327,7 @@ function createYouthCampForm() {
       .setRequired(true);
 
     form.addParagraphTextItem()
-      .setTitle("If yes – please state the type of allergy / allergies " + label + " has")
+      .setTitle("If yes – please state the type of allergy / allergies")
       .setHelpText('Complete only if the camper has allergies.');
 
     form.addMultipleChoiceItem()
@@ -286,7 +336,7 @@ function createYouthCampForm() {
       .setRequired(true);
 
     form.addParagraphTextItem()
-      .setTitle("If no – please explain why " + label + " cannot participate in all outdoor activities")
+      .setTitle("If no – please explain why")
       .setHelpText('Complete only if the camper cannot participate in all activities.');
 
     form.addMultipleChoiceItem()
@@ -295,64 +345,51 @@ function createYouthCampForm() {
       .setRequired(true);
 
     form.addParagraphTextItem()
-      .setTitle("If yes – please state " + label + "'s dietary requirements")
+      .setTitle("If yes – please state the dietary requirements")
       .setHelpText('Complete only if the camper has dietary requirements.');
 
     form.addMultipleChoiceItem()
       .setTitle("How will " + label + " be travelling to the camp-site?")
-      .setChoiceValues([
-        'Organised Transport',
-        'Own Transport',
-        'Virtual Attendance (Online)'
-      ])
+      .setChoiceValues(['Organised Transport', 'Own Transport', 'Virtual Attendance (Online)'])
       .setRequired(true);
 
     form.addParagraphTextItem()
       .setTitle("What are " + label + "'s expectations or goals for this camp?")
       .setRequired(true);
 
-    // For campers 1-5: add a gateway question to route to the next camper or payment.
+    // Gateway question for campers 1–9.
     if (!isLast) {
       var moreCampersQ = form.addMultipleChoiceItem()
         .setTitle('Are you registering another camper?')
         .setHelpText(
-          'Select "Yes" to fill in the next camper\'s details, ' +
-          'or "No" to proceed to the payment section.'
+          "Select 'Yes' to add another camper, or 'No' to proceed to the next section."
         )
         .setRequired(true);
-      // Choices are set after the loop (payment page must exist first).
+      // Choices set after the loop (paymentPage must exist first).
       moreCampersItems.push(moreCampersQ);
     }
+
   } // end camper loop
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // PAYMENT & CAMP FEES
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ── 6. PAYMENT & CAMP FEES ───────────────────────────────────────────────
   var paymentPage = form.addPageBreakItem()
     .setTitle('Payment & Camp Fees');
 
   form.addSectionHeaderItem()
-    .setTitle('Camp Fee Information')
+    .setTitle('Payment Information')
     .setHelpText(
-      'The camp fee details will be communicated to you directly by the organising team. ' +
-      'Please indicate your payment situation below.'
+      'Camp fee details will be communicated to you directly by the organising team. ' +
+      'Please indicate your payment situation below.\n\n' +
+      'Payment Deadline: 30 April 2026\n' +
+      'Finance contact: Salote – salotesoroaqali@gmail.com'
     );
 
   var paymentQ = form.addMultipleChoiceItem()
-    .setTitle('Are you able to pay the full amount of the camp fee as stated?')
+    .setTitle('Please select one of the options below that best describes your situation.')
     .setRequired(true);
-  // Choices set below once assistance/donation pages exist.
+  // Choices set below once donationPage exists.
 
-  // Payment assistance branch
-  var assistancePage = form.addPageBreakItem()
-    .setTitle('Payment Assistance');
-
-  form.addTextItem()
-    .setTitle('Please state how much you are able to pay towards the camp fee')
-    .setHelpText('Enter the amount in FJD (Fijian Dollars).')
-    .setRequired(true);
-
-  // Donation branch
+  // Donation branch (only reached via the donate choice — no assistance page).
   var donationPage = form.addPageBreakItem()
     .setTitle('Donation');
 
@@ -361,25 +398,23 @@ function createYouthCampForm() {
     .setHelpText('Enter the amount in FJD (Fijian Dollars).')
     .setRequired(true);
 
-  // Payment branching choices
+  // Payment branching choices.
   paymentQ.setChoices([
     paymentQ.createChoice(
-      'Yes, I am able to pay the full amount.',
+      'I am able to pay the camp fee.',
       FormApp.PageNavigationType.SUBMIT
     ),
     paymentQ.createChoice(
-      'No. I will need assistance for payment.',
-      assistancePage
+      'I will need assistance for payment.',
+      FormApp.PageNavigationType.SUBMIT
     ),
     paymentQ.createChoice(
-      'Yes I am able to pay the full amount, and I am willing to donate some more to assist in the running of the camp.',
+      'I am able to pay the camp fee, and I am willing to donate some more to assist in the running of the camp.',
       donationPage
     )
   ]);
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // SET UP "MORE CAMPERS?" BRANCHING  (done here because paymentPage now exists)
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ── 7. SET UP "MORE CAMPERS?" BRANCHING ─────────────────────────────────
   for (var i = 0; i < moreCampersItems.length; i++) {
     var q        = moreCampersItems[i];
     var nextPage = camperBasicPages[i + 1]; // next camper's basic info section
@@ -389,12 +424,8 @@ function createYouthCampForm() {
     ]);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // DONE – log the URLs
-  // ─────────────────────────────────────────────────────────────────────────────
-  Logger.log('✅ Form created successfully!');
-  Logger.log('📋 Fill-in URL  : ' + form.getPublishedUrl());
-  Logger.log('✏️  Edit URL     : ' + form.getEditUrl());
-
-  return form;
+  // ── Done ─────────────────────────────────────────────────────────────────
+  Logger.log('Form updated successfully!');
+  Logger.log('Fill-in URL : ' + form.getPublishedUrl());
+  Logger.log('Edit URL    : ' + form.getEditUrl());
 }
