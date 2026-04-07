@@ -201,9 +201,14 @@ function updateYouthCampForm() {
     var eduStatusPage = form.addPageBreakItem()
       .setTitle(label + ' – Education & Employment Status');
 
+    // NOTE: Apps Script does not allow showOtherOption(true) on a question
+    // that also has page-navigation choices — it throws "Invalid data updating
+    // form" regardless of call order.  After running this script, open each
+    // camper's education question in the form editor and click
+    // "Add option  or  Add 'Other'" to add the inline text field manually.
+    // It takes about 10 seconds per camper and only needs to be done once.
     var eduQ = form.addMultipleChoiceItem()
       .setTitle("What is " + label + "'s current education or employment status?")
-      .showOtherOption(true)  // must be set BEFORE navigation choices are applied
       .setRequired(true);
 
     // Choices set further below once all target page references exist.
