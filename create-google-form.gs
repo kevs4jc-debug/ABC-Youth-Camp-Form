@@ -84,18 +84,28 @@ function updateYouthCampForm() {
   form.setAllowResponseEdits(true);
   form.setShowLinkToRespondAgain(false);
 
-  // ── 3. WELCOME SECTION (no page break – first visible section) ──────────
+  // ── 3. WELCOME SECTION (first page – no page break before it) ──────────
+  //
+  // TIP  ▸  For stylish fonts open the form editor → palette icon
+  //         (Customize theme) → Text → choose a display font such as
+  //         "Pacifico", "Lobster", or "Dancing Script" for the heading.
+  //         Then pick warm earth/orange tones to match the camp logo.
   form.addSectionHeaderItem()
-    .setTitle('About This Camp')
+    .setTitle('\u2756  ABC Youth Camp 2026  \u2756')
     .setHelpText(
-      'ABC Youth Camp 2026 is a transformative experience designed to empower young ' +
-      'people through spiritual growth, leadership development, and community connection. ' +
-      'We are excited to journey with your family and look forward to an amazing camp together!\n\n' +
-      'Registration closes 19 April 2026  |  Payment due by 30 April 2026'
+      '\u2728  Welcome, families!  \u2728\n\n' +
+      'ABC Youth Camp 2026 is a transformative journey crafted to ignite ' +
+      'spiritual growth, develop bold leaders, and build a generation of ' +
+      'young people deeply rooted in community and purpose.\n\n' +
+      'We are excited to journey alongside your family and cannot wait to ' +
+      'see what God will do through each camper this year!\n\n' +
+      '\u23f0  Registration Deadline  \u2192  19 April 2026\n' +
+      '\ud83d\udcb3  Payment Deadline       \u2192  30 April 2026\n\n' +
+      'Click NEXT to begin the registration.'
     );
 
-  // ── 4. PARENTS AND GUARDIANS INFORMATION ────────────────────────────────
-  form.addSectionHeaderItem()
+  // ── 4. PARENTS AND GUARDIANS INFORMATION (separate page) ────────────────
+  form.addPageBreakItem()
     .setTitle('Parents and Guardians Information')
     .setHelpText('Please provide your contact details as the parent or guardian completing this registration.');
 
@@ -188,7 +198,7 @@ function updateYouthCampForm() {
       .setRequired(true);
 
     // ── Education & Employment Status (branching question) ─────────────────
-    form.addPageBreakItem()
+    var eduStatusPage = form.addPageBreakItem()
       .setTitle(label + ' – Education & Employment Status');
 
     var eduQ = form.addMultipleChoiceItem()
@@ -248,34 +258,28 @@ function updateYouthCampForm() {
       .setChoiceValues(['Full Time', 'Part Time'])
       .setRequired(true);
 
-    // ── Other Education / Employment Status ────────────────────────────────
-    // "Other" routes here so the camper can describe their status in a text
-    // field before continuing to the health section.
-    var otherEduPage = form.addPageBreakItem()
-      .setTitle(label + ' – Other Education / Employment Status');
-
-    form.addTextItem()
-      .setTitle("Please describe " + label + "'s education or employment status")
-      .setRequired(true);
-
     // ── Health & Medical (branching question) ──────────────────────────────
     var healthPage = form.addPageBreakItem()
       .setTitle(label + ' – Health & Medical');
 
-    // All education detail sections (including Other) end at healthPage.
+    // Education detail sections end at healthPage.
+    // eduStatusPage default is also set to healthPage so the built-in
+    // "Other" text field (showOtherOption) routes there automatically.
     priSecPage.setGoToPage(healthPage);
     tertiaryPage.setGoToPage(healthPage);
     professionalPage.setGoToPage(healthPage);
-    otherEduPage.setGoToPage(healthPage);
+    eduStatusPage.setGoToPage(healthPage);
 
-    // Set education branching choices (all target pages now exist).
+    // Named choices branch to their detail sections.
+    // "Other" uses showOtherOption(true) – adds an inline text field so
+    // the camper can describe their status; follows eduStatusPage default → healthPage.
     eduQ.setChoices([
       eduQ.createChoice('Primary School',        priSecPage),
       eduQ.createChoice('Secondary School',      priSecPage),
       eduQ.createChoice('Tertiary / Vocational', tertiaryPage),
-      eduQ.createChoice('Working Professional',  professionalPage),
-      eduQ.createChoice('Other',                 otherEduPage)
+      eduQ.createChoice('Working Professional',  professionalPage)
     ]);
+    eduQ.showOtherOption(true);
 
     var medQ = form.addMultipleChoiceItem()
       .setTitle("Does " + label + " have any current medical condition?")
