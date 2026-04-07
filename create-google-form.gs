@@ -136,7 +136,7 @@ function createYouthCampForm() {
       .setRequired(true);
 
     form.addMultipleChoiceItem()
-      .setTitle('Are you the coordinator for ' + label + '?')
+      .setTitle('Is ' + label + ' a coordinator?')
       .setChoiceValues(['Yes', 'No'])
       .setRequired(true);
 
