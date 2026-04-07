@@ -51,9 +51,10 @@ function updateYouthCampForm() {
   var form = FormApp.openById(FORM_ID);
 
   // ── 1. Clear every existing item ────────────────────────────────────────
-  var existing = form.getItems();
-  for (var i = existing.length - 1; i >= 0; i--) {
-    form.deleteItem(existing[i]);
+  // Always fetch a fresh reference to item[0] so stale IDs from branching
+  // dependencies never cause "Invalid data updating form".
+  while (form.getItems().length > 0) {
+    form.deleteItem(form.getItems()[0]);
   }
 
   // ── 2. Form-level metadata ───────────────────────────────────────────────
@@ -62,10 +63,10 @@ function updateYouthCampForm() {
     'Welcome to ABC Youth Camp 2026!\n\n' +
     'This camp is designed to empower young people through spiritual growth, ' +
     'leadership development, and community connection.\n\n' +
-    '─────────────────────────────────\n' +
+    '-------------------------------------\n' +
     'Registration Deadline : 19 April 2026\n' +
     'Payment Deadline      : 30 April 2026\n' +
-    '─────────────────────────────────\n\n' +
+    '-------------------------------------\n\n' +
     'Please complete all required fields (*) accurately.\n\n' +
     'For enquiries:\n' +
     '  Finance   – Salote  : salotesoroaqali@gmail.com\n' +
