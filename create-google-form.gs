@@ -58,19 +58,17 @@ function updateYouthCampForm() {
   }
 
   // ── 2. Form-level metadata ───────────────────────────────────────────────
-  form.setTitle('2026 ABC Youth Camp Registration Form');
+  form.setTitle('\uD83C\uDFD5\uFE0F  2026 ABC Youth Camp  \uD83C\uDFD5\uFE0F');
   form.setDescription(
-    'Welcome to ABC Youth Camp 2026!\n\n' +
-    'This camp is designed to empower young people through spiritual growth, ' +
-    'leadership development, and community connection.\n\n' +
-    '-------------------------------------\n' +
-    'Registration Deadline : 19 April 2026\n' +
-    'Payment Deadline      : 30 April 2026\n' +
-    '-------------------------------------\n\n' +
-    'Please complete all required fields (*) accurately.\n\n' +
-    'For enquiries:\n' +
-    '  Finance   – Salote  : salotesoroaqali@gmail.com\n' +
-    '  Logistics – Laisane : l.tubuna@gmail.com'
+    '\u2728 Welcome to ABC Youth Camp 2026! \u2728\n\n' +
+    '\uD83C\uDF31  This camp is designed to empower young people through ' +
+    'spiritual growth, leadership development, and community connection.\n\n' +
+    '\uD83D\uDCC5  Registration Deadline : 19 April 2026\n' +
+    '\uD83D\uDCB3  Payment Deadline      : 30 April 2026\n\n' +
+    '\u2709\uFE0F  For enquiries:\n' +
+    '       Finance   \u2013 Salote  : salotesoroaqali@gmail.com\n' +
+    '       Logistics \u2013 Laisane : l.tubuna@gmail.com\n\n' +
+    '\u270F\uFE0F  Please complete all required fields (*) accurately.'
   );
   form.setConfirmationMessage(
     'Thank you for registering for the 2026 ABC Youth Camp!\n\n' +
@@ -91,17 +89,18 @@ function updateYouthCampForm() {
   //         "Pacifico", "Lobster", or "Dancing Script" for the heading.
   //         Then pick warm earth/orange tones to match the camp logo.
   form.addSectionHeaderItem()
-    .setTitle('\u2756  ABC Youth Camp 2026  \u2756')
+    .setTitle('\uD83C\uDF1F\u2728  Welcome to ABC Youth Camp 2026!  \u2728\uD83C\uDF1F')
     .setHelpText(
-      '\u2728  Welcome, families!  \u2728\n\n' +
-      'ABC Youth Camp 2026 is a transformative journey crafted to ignite ' +
-      'spiritual growth, develop bold leaders, and build a generation of ' +
-      'young people deeply rooted in community and purpose.\n\n' +
-      'We are excited to journey alongside your family and cannot wait to ' +
-      'see what God will do through each camper this year!\n\n' +
-      '\u23f0  Registration Deadline  \u2192  19 April 2026\n' +
-      '\ud83d\udcb3  Payment Deadline       \u2192  30 April 2026\n\n' +
-      'Click NEXT to begin the registration.'
+      '\uD83D\uDC9A  A transformative journey of faith, leadership & community  \uD83D\uDC9A\n\n' +
+      'ABC Youth Camp 2026 is crafted to ignite spiritual growth, develop ' +
+      'bold leaders, and build a generation of young people deeply rooted ' +
+      'in community and purpose.\n\n' +
+      'We are SO excited to journey alongside your family this year and ' +
+      'cannot wait to see what God will do through each and every camper!\n\n' +
+      '\uD83D\uDD25  Get ready for an incredible experience!\n\n' +
+      '\uD83D\uDCC5  Registration closes  \u2794  19 April 2026\n' +
+      '\uD83D\uDCB0  Payment due by       \u2794  30 April 2026\n\n' +
+      '\u27A1\uFE0F  Click NEXT to begin the registration.'
     );
 
   // ── 4. PARENTS AND GUARDIANS INFORMATION (separate page) ────────────────
@@ -115,11 +114,19 @@ function updateYouthCampForm() {
 
   form.addTextItem()
     .setTitle('Email Address')
+    .setValidation(FormApp.createTextValidation()
+      .setHelpText('Please enter a valid email address (e.g. name@example.com).')
+      .requireTextMatchesPattern('^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$')
+      .build())
     .setRequired(true);
 
   form.addTextItem()
     .setTitle('Phone Number')
-    .setHelpText('Include country code if overseas, e.g. +679 777 1234')
+    .setHelpText('Digits only, at least 7 numbers. Include country code if overseas e.g. +679 777 1234')
+    .setValidation(FormApp.createTextValidation()
+      .setHelpText('Please enter a valid phone number with at least 7 digits (no letters).')
+      .requireTextMatchesPattern('^[+]?[\\d][\\d\\s\\-]{5,}[\\d]$')
+      .build())
     .setRequired(true);
 
   form.addMultipleChoiceItem()
@@ -168,11 +175,19 @@ function updateYouthCampForm() {
 
     form.addTextItem()
       .setTitle(label + "'s Email Address")
-      .setHelpText("Enter the camper's email address if they have one.");
+      .setHelpText("Enter the camper's email address if they have one.")
+      .setValidation(FormApp.createTextValidation()
+        .setHelpText('Please enter a valid email address (e.g. name@example.com).')
+        .requireTextMatchesPattern('^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$')
+        .build());
 
     form.addTextItem()
       .setTitle(label + "'s Phone Contact")
-      .setHelpText("Enter the camper's mobile number.");
+      .setHelpText("Enter the camper's mobile number (digits only, at least 7 numbers).")
+      .setValidation(FormApp.createTextValidation()
+        .setHelpText('Please enter a valid phone number with at least 7 digits (no letters).')
+        .requireTextMatchesPattern('^[+]?[\\d][\\d\\s\\-]{5,}[\\d]$')
+        .build());
 
     form.addDateItem()
       .setTitle(label + "'s Date of Birth")
@@ -201,9 +216,14 @@ function updateYouthCampForm() {
     var eduStatusPage = form.addPageBreakItem()
       .setTitle(label + ' – Education & Employment Status');
 
+    // NOTE: Apps Script does not allow showOtherOption(true) on a question
+    // that also has page-navigation choices — it throws "Invalid data updating
+    // form" regardless of call order.  After running this script, open each
+    // camper's education question in the form editor and click
+    // "Add option  or  Add 'Other'" to add the inline text field manually.
+    // It takes about 10 seconds per camper and only needs to be done once.
     var eduQ = form.addMultipleChoiceItem()
       .setTitle("What is " + label + "'s current education or employment status?")
-      .showOtherOption(true)  // must be set BEFORE navigation choices are applied
       .setRequired(true);
 
     // Choices set further below once all target page references exist.
@@ -265,21 +285,21 @@ function updateYouthCampForm() {
       .setTitle(label + ' – Health & Medical');
 
     // Education detail sections end at healthPage.
-    // eduStatusPage default is also set to healthPage so the built-in
-    // "Other" text field (showOtherOption) routes there automatically.
     priSecPage.setGoToPage(healthPage);
     tertiaryPage.setGoToPage(healthPage);
     professionalPage.setGoToPage(healthPage);
-    eduStatusPage.setGoToPage(healthPage);
+    // NOTE: do NOT call eduStatusPage.setGoToPage() — that mistakenly
+    // redirects the Basic Info section (the page before eduStatusPage)
+    // straight to healthPage, bypassing the education questions entirely.
 
-    // Named choices branch to their detail sections.
-    // "Other" (with its inline text field) follows eduStatusPage's default
-    // navigation → healthPage, set via eduStatusPage.setGoToPage() above.
+    // "Other" is an explicit choice → healthPage so the camper's typed
+    // status (in the text field below the radio buttons) is captured first.
     eduQ.setChoices([
       eduQ.createChoice('Primary School',        priSecPage),
       eduQ.createChoice('Secondary School',      priSecPage),
       eduQ.createChoice('Tertiary / Vocational', tertiaryPage),
-      eduQ.createChoice('Working Professional',  professionalPage)
+      eduQ.createChoice('Working Professional',  professionalPage),
+      eduQ.createChoice('Other',                 healthPage)
     ]);
 
     var medQ = form.addMultipleChoiceItem()
@@ -434,4 +454,228 @@ function updateYouthCampForm() {
   Logger.log('Form updated successfully!');
   Logger.log('Fill-in URL : ' + form.getPublishedUrl());
   Logger.log('Edit URL    : ' + form.getEditUrl());
+}
+
+// =============================================================================
+// AUTOMATED CONFIRMATION EMAIL
+// =============================================================================
+// After running updateYouthCampForm(), run installFormTrigger() ONCE to
+// register the onFormSubmit trigger.  Every time a parent submits the form,
+// they will automatically receive a friendly HTML summary email.
+// =============================================================================
+
+/**
+ * Run this ONCE after updateYouthCampForm() to register the submit trigger.
+ */
+function installFormTrigger() {
+  var form = FormApp.openById(FORM_ID);
+
+  // Remove any existing onFormSubmit triggers for this script to avoid duplicates.
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'onFormSubmit') ScriptApp.deleteTrigger(t);
+  });
+
+  ScriptApp.newTrigger('onFormSubmit')
+    .forForm(form)
+    .onFormSubmit()
+    .create();
+
+  Logger.log('Trigger installed. Confirmation emails will now be sent on every submission.');
+}
+
+/**
+ * Called automatically each time the form is submitted.
+ * Sends a friendly HTML email with a camper summary table.
+ */
+function onFormSubmit(e) {
+  try {
+    var response  = e.response;
+    var responses = {};
+    response.getItemResponses().forEach(function (ir) {
+      responses[ir.getItem().getTitle()] = ir.getResponse();
+    });
+
+    var guardianName  = responses['Full Name']         || 'Parent/Guardian';
+    var guardianEmail = responses['Email Address'];
+    if (!guardianEmail) return; // nothing to send to
+
+    var numCampersRaw = responses['How many campers will you be registering?'] || '1 Camper';
+    var numCampers    = parseInt(numCampersRaw, 10) || 1;
+
+    // Collect per-camper data
+    var campers = [];
+    for (var n = 1; n <= numCampers; n++) {
+      var lbl = 'Camper ' + n;
+      var name = responses[lbl + "'s Full Name"];
+      if (!name) continue; // skip if section was left blank
+      campers.push({
+        number:    n,
+        name:      name,
+        dob:       responses[lbl + "'s Date of Birth"]                                          || '',
+        location:  responses['Location of ' + lbl]                                              || '',
+        pg:        responses["What is " + lbl + "'s People's Group?"]                          || '',
+        edu:       responses["What is " + lbl + "'s current education or employment status?"] || '',
+        medical:   responses["Does " + lbl + " have any current medical condition?"]           || '',
+        allergies: responses["Is " + lbl + " allergic to anything?"]                           || '',
+        dietary:   responses["Does " + lbl + " have any dietary requirements?"]               || '',
+        transport: responses["How will " + lbl + " be travelling to the camp-site?"]          || '',
+        goals:     responses["What are " + lbl + "'s expectations or goals for this camp?"]   || ''
+      });
+    }
+
+    var subject  = '\uD83C\uDFD5\uFE0F 2026 ABC Youth Camp \u2013 Registration Confirmed!';
+    var htmlBody = buildConfirmationHtml_(guardianName, campers);
+    var textBody = buildConfirmationText_(guardianName, campers);
+
+    MailApp.sendEmail({
+      to:       guardianEmail,
+      subject:  subject,
+      body:     textBody,
+      htmlBody: htmlBody
+    });
+
+  } catch (err) {
+    Logger.log('onFormSubmit error: ' + err.message);
+  }
+}
+
+// ── HTML email builder ────────────────────────────────────────────────────────
+function buildConfirmationHtml_(guardianName, campers) {
+  var rows = campers.map(function (c) {
+    return '<tr style="background:' + (c.number % 2 === 0 ? '#f9f5ee' : '#ffffff') + '">' +
+      td('#', c.number) +
+      td('Full Name', c.name) +
+      td('Date of Birth', c.dob) +
+      td('Location', c.location) +
+      td("People's Group", c.pg) +
+      td('Education / Employment', c.edu) +
+      td('Medical Condition?', c.medical) +
+      td('Allergies?', c.allergies) +
+      td('Dietary Requirements?', c.dietary) +
+      td('Transport', c.transport) +
+    '</tr>';
+  }).join('');
+
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body ' +
+    'style="margin:0;padding:0;background:#f4f0e8;font-family:Georgia,serif;">' +
+
+    // Header banner
+    '<div style="background:linear-gradient(135deg,#8B4513,#D2691E,#DAA520);' +
+    'padding:36px 32px;text-align:center;">' +
+    '<h1 style="color:#fff;margin:0;font-size:26px;letter-spacing:1px;">' +
+    '\uD83C\uDFD5\uFE0F 2026 ABC Youth Camp</h1>' +
+    '<p style="color:#ffe4b5;margin:8px 0 0;font-size:15px;">Registration Confirmation</p>' +
+    '</div>' +
+
+    // Body
+    '<div style="max-width:700px;margin:0 auto;padding:32px 24px;">' +
+
+    '<p style="font-size:17px;color:#4a2c0a;">Dear <strong>' + guardianName + '</strong>,</p>' +
+
+    '<p style="color:#5a3010;line-height:1.7;font-size:15px;">' +
+    'Thank you so much for registering for the <strong>2026 ABC Youth Camp</strong>! \uD83D\uDE4F ' +
+    'We are thrilled to have your camper(s) join us for what is going to be an incredible ' +
+    'and life-changing experience.</p>' +
+
+    '<p style="color:#5a3010;line-height:1.7;font-size:15px;">' +
+    'Below is a summary of the camper(s) you have registered. Please review it and ' +
+    'reach out if anything needs to be corrected.</p>' +
+
+    // Table
+    '<div style="overflow-x:auto;margin:24px 0;">' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;' +
+    'box-shadow:0 2px 8px rgba(0,0,0,.12);">' +
+    '<thead>' +
+    '<tr style="background:#8B4513;color:#fff;">' +
+    '<th style="padding:10px 8px;">#</th>' +
+    '<th style="padding:10px 8px;">Name</th>' +
+    '<th style="padding:10px 8px;">Date of Birth</th>' +
+    '<th style="padding:10px 8px;">Location</th>' +
+    "<th style=\"padding:10px 8px;\">People's Group</th>" +
+    '<th style="padding:10px 8px;">Education / Employment</th>' +
+    '<th style="padding:10px 8px;">Medical?</th>' +
+    '<th style="padding:10px 8px;">Allergies?</th>' +
+    '<th style="padding:10px 8px;">Dietary?</th>' +
+    '<th style="padding:10px 8px;">Transport</th>' +
+    '</tr>' +
+    '</thead><tbody>' + rows + '</tbody></table></div>' +
+
+    // Deadlines reminder
+    '<div style="background:#fff8ec;border-left:4px solid #DAA520;' +
+    'padding:16px 20px;border-radius:4px;margin:20px 0;">' +
+    '<p style="margin:0;color:#7a4f00;font-size:14px;">' +
+    '\uD83D\uDCC5 <strong>Registration Deadline:</strong> 19 April 2026<br>' +
+    '\uD83D\uDCB3 <strong>Payment Deadline:</strong> 30 April 2026</p></div>' +
+
+    // Contacts
+    '<p style="color:#5a3010;font-size:14px;line-height:1.8;">' +
+    'If you have any questions, please don\'t hesitate to reach out:<br>' +
+    '\uD83D\uDCB0 <strong>Finance queries:</strong> Salote \u2013 ' +
+    '<a href="mailto:salotesoroaqali@gmail.com" style="color:#8B4513;">' +
+    'salotesoroaqali@gmail.com</a><br>' +
+    '\uD83C\uDFD5\uFE0F <strong>Camp logistics:</strong> Laisane \u2013 ' +
+    '<a href="mailto:l.tubuna@gmail.com" style="color:#8B4513;">' +
+    'l.tubuna@gmail.com</a></p>' +
+
+    '<p style="color:#5a3010;font-size:15px;line-height:1.7;margin-top:24px;">' +
+    'We cannot wait to see your family at camp. God bless! \uD83C\uDF1F</p>' +
+
+    '<p style="color:#8B4513;font-size:14px;font-style:italic;">' +
+    'Warm regards,<br><strong>ABC Ministry Team</strong><br>' +
+    '2026 ABC Youth Camp</p>' +
+
+    '</div>' + // end body div
+    '</body></html>';
+}
+
+function td(header, value) {
+  return '<td style="padding:8px;border:1px solid #e0d5c0;vertical-align:top;' +
+    'color:#3a2000;">' + (value || '\u2014') + '</td>';
+}
+
+// ── Plain-text fallback ───────────────────────────────────────────────────────
+function buildConfirmationText_(guardianName, campers) {
+  var lines = [
+    'Dear ' + guardianName + ',',
+    '',
+    'Thank you for registering for the 2026 ABC Youth Camp!',
+    'We are so excited to have your camper(s) join us.',
+    '',
+    'REGISTRATION SUMMARY',
+    '--------------------'
+  ];
+
+  campers.forEach(function (c) {
+    lines.push(
+      '',
+      'Camper ' + c.number + ': ' + c.name,
+      '  Date of Birth     : ' + (c.dob       || 'N/A'),
+      '  Location          : ' + (c.location  || 'N/A'),
+      "  People's Group    : " + (c.pg        || 'N/A'),
+      '  Education Status  : ' + (c.edu       || 'N/A'),
+      '  Medical Condition : ' + (c.medical   || 'N/A'),
+      '  Allergies         : ' + (c.allergies || 'N/A'),
+      '  Dietary Req.      : ' + (c.dietary   || 'N/A'),
+      '  Transport         : ' + (c.transport || 'N/A')
+    );
+  });
+
+  lines.push(
+    '',
+    'IMPORTANT DEADLINES',
+    '  Registration Deadline : 19 April 2026',
+    '  Payment Deadline      : 30 April 2026',
+    '',
+    'CONTACTS',
+    '  Finance queries : Salote  - salotesoroaqali@gmail.com',
+    '  Camp logistics  : Laisane - l.tubuna@gmail.com',
+    '',
+    'We cannot wait to see your family at camp. God bless!',
+    '',
+    'Warm regards,',
+    'ABC Ministry Team',
+    '2026 ABC Youth Camp'
+  );
+
+  return lines.join('\n');
 }
