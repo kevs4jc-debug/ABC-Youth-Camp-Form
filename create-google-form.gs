@@ -174,18 +174,18 @@ function updateYouthCampForm() {
       .setRequired(true);
 
     form.addTextItem()
-      .setTitle(label + "'s Email Address")
-      .setHelpText("Enter the camper's email address if they have one.")
+      .setTitle(label + "'s Email Address (Optional)")
+      .setHelpText("If the camper has an email address, enter it here. If not, leave this blank.")
       .setValidation(FormApp.createTextValidation()
-        .setHelpText('Please enter a valid email address (e.g. name@example.com).')
+        .setHelpText('Please enter a valid email address (e.g. name@example.com), or leave blank.')
         .requireTextMatchesPattern('^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$')
         .build());
 
     form.addTextItem()
-      .setTitle(label + "'s Phone Contact")
-      .setHelpText("Enter the camper's mobile number (digits only, at least 7 numbers).")
+      .setTitle(label + "'s Phone Contact (Optional)")
+      .setHelpText("If the camper has a phone number, enter it here (digits only, at least 7 numbers). If not, leave this blank.")
       .setValidation(FormApp.createTextValidation()
-        .setHelpText('Please enter a valid phone number with at least 7 digits (no letters).')
+        .setHelpText('Please enter a valid phone number with at least 7 digits (no letters), or leave blank.')
         .requireTextMatchesPattern('^[+]?[\\d][\\d\\s\\-]{5,}[\\d]$')
         .build());
 
