@@ -59,23 +59,12 @@ function updateYouthCampForm() {
 
   // ── 2. Form-level metadata ───────────────────────────────────────────────
   form.setTitle('\uD83C\uDFD5\uFE0F  2026 ABC Youth Camp  \uD83C\uDFD5\uFE0F');
-  form.setDescription(
-    '\u2728 Welcome to ABC Youth Camp 2026! \u2728\n\n' +
-    '\uD83C\uDF31  This camp is designed to empower young people through ' +
-    'spiritual growth, leadership development, and community connection.\n\n' +
-    '\uD83D\uDCC5  Registration Deadline : 19 April 2026\n' +
-    '\uD83D\uDCB3  Payment Deadline      : 30 April 2026\n\n' +
-    '\u2709\uFE0F  For enquiries:\n' +
-    '       Finance   \u2013 Salote  : salotesoroaqali@gmail.com\n' +
-    '       Logistics \u2013 Laisane : l.tubuna@gmail.com\n\n' +
-    '\u270F\uFE0F  Please complete all required fields (*) accurately.'
-  );
+  form.setDescription('');
   form.setConfirmationMessage(
     'Thank you for registering for the 2026 ABC Youth Camp!\n\n' +
-    'Your registration has been successfully submitted. ' +
-    'We look forward to seeing you at camp!\n\n' +
+    'Your registration has been successfully submitted.\n\n' +
     'If you have any questions please reach out to:\n' +
-    '  Finance queries : Salote – salotesoroaqali@gmail.com\n' +
+    '  Finance queries : Salote  – finance@advancedbreakthroughcentre.org\n' +
     '  Camp logistics  : Laisane – l.tubuna@gmail.com'
   );
   form.setIsQuiz(false);
@@ -414,20 +403,12 @@ function updateYouthCampForm() {
     .setTitle('Registration Fees')
     .setHelpText(
       'The registration fees for the 2026 ABC Youth Camp are as follows:\n\n' +
-      '  In-Person Payment : FJD $70.00 per camper\n' +
-      '  Online Payment    : FJD $40.00 per camper\n\n' +
+      '  \u2022 FJD $70.00 per camper\n' +
+      '  \u2022 FJD $40.00 per camper if attending online\n\n' +
       'Your total will be based on the number of campers you have registered ' +
-      'and your chosen payment method.\n\n' +
+      'and whether the camper attends in person or online.\n\n' +
       'Deadline to pay camp fees : 30 April 2026'
     );
-
-  form.addMultipleChoiceItem()
-    .setTitle('How will you be making your payment?')
-    .setChoiceValues([
-      'In-Person – FJD $70.00 per camper',
-      'Online – FJD $40.00 per camper'
-    ])
-    .setRequired(true);
 
   form.addSectionHeaderItem()
     .setTitle('Payment Instructions')
@@ -558,13 +539,9 @@ function onFormSubmit(e) {
       });
     }
 
-    var paymentMethod = responses['How will you be making your payment?'] || '';
-    var feePerCamper  = paymentMethod.indexOf('Online') !== -1 ? 40 : 70;
-    var totalFee      = campers.length * feePerCamper;
-
-    var subject  = '\uD83C\uDFD5\uFE0F 2026 ABC Youth Camp \u2013 Registration Confirmed!';
-    var htmlBody = buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee);
-    var textBody = buildConfirmationText_(guardianName, campers, feePerCamper, totalFee);
+    var subject  = '2026 ABC Youth Camp \u2013 Registration Confirmed';
+    var htmlBody = buildConfirmationHtml_(guardianName, campers);
+    var textBody = buildConfirmationText_(guardianName, campers);
 
     MailApp.sendEmail({
       to:       guardianEmail,
@@ -579,17 +556,7 @@ function onFormSubmit(e) {
 }
 
 // ── HTML email builder ────────────────────────────────────────────────────────
-function buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee) {
-  // Fee summary rows (one row per camper)
-  var feeRows = campers.map(function (c) {
-    return '<tr style="background:' + (c.number % 2 === 0 ? '#f9f5ee' : '#ffffff') + '">' +
-      '<td style="padding:8px;border:1px solid #e0d5c0;color:#3a2000;">' + c.number + '</td>' +
-      '<td style="padding:8px;border:1px solid #e0d5c0;color:#3a2000;">' + c.name + '</td>' +
-      '<td style="padding:8px;border:1px solid #e0d5c0;color:#3a2000;text-align:right;">' +
-        'FJD $' + feePerCamper + '.00</td>' +
-      '</tr>';
-  }).join('');
-
+function buildConfirmationHtml_(guardianName, campers) {
   var rows = campers.map(function (c) {
     return '<tr style="background:' + (c.number % 2 === 0 ? '#f9f5ee' : '#ffffff') + '">' +
       td('#', c.number) +
@@ -619,39 +586,22 @@ function buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee) {
     // Body
     '<div style="max-width:700px;margin:0 auto;padding:32px 24px;">' +
 
-    '<p style="font-size:17px;color:#4a2c0a;">Dear <strong>' + guardianName + '</strong>,</p>' +
+    '<p style="font-size:16px;color:#333;">Dear <strong>' + guardianName + '</strong>,</p>' +
 
-    '<p style="color:#5a3010;line-height:1.7;font-size:15px;">' +
-    'Thank you so much for registering for the <strong>2026 ABC Youth Camp</strong>! \uD83D\uDE4F ' +
-    'We are thrilled to have your camper(s) join us for what is going to be an incredible ' +
-    'and life-changing experience.</p>' +
+    '<p style="color:#333;line-height:1.7;font-size:14px;">' +
+    'Thank you for registering for the <strong>2026 ABC Youth Camp</strong>. ' +
+    'Below is a summary of the camper(s) you have submitted. ' +
+    'Please check the details and contact us if any corrections are needed.</p>' +
 
-    '<p style="color:#5a3010;line-height:1.7;font-size:15px;">' +
-    'Below is a summary of the camper(s) you have registered, including the registration ' +
-    'fees. Please review it and reach out if anything needs to be corrected.</p>' +
-
-    // Fee summary table
-    '<h3 style="color:#5a3010;border-bottom:2px solid #DAA520;padding-bottom:6px;' +
-    'margin-bottom:12px;">\uD83D\uDCB0 Fee Summary</h3>' +
-    '<div style="overflow-x:auto;margin:0 0 28px;">' +
-    '<table style="width:100%;max-width:520px;border-collapse:collapse;font-size:14px;' +
-    'box-shadow:0 2px 8px rgba(0,0,0,.10);">' +
-    '<thead><tr style="background:#8B4513;color:#fff;">' +
-    '<th style="padding:10px 12px;text-align:left;">#</th>' +
-    '<th style="padding:10px 12px;text-align:left;">Camper Name</th>' +
-    '<th style="padding:10px 12px;text-align:right;">Fee</th>' +
-    '</tr></thead><tbody>' + feeRows +
-    '<tr style="background:#f0e6cc;">' +
-    '<td colspan="2" style="padding:10px 12px;font-weight:bold;color:#3a2000;' +
-    'border:1px solid #e0d5c0;">Total (' + campers.length + ' camper' +
-    (campers.length === 1 ? '' : 's') + ')</td>' +
-    '<td style="padding:10px 12px;font-weight:bold;color:#2a5a00;text-align:right;' +
-    'border:1px solid #e0d5c0;">FJD $' + totalFee + '.00</td>' +
-    '</tr></tbody></table></div>' +
+    '<p style="color:#333;font-size:14px;background:#f5f5f5;padding:10px 14px;' +
+    'border-left:4px solid #aaa;border-radius:3px;">' +
+    '<strong>Registration fee:</strong> FJD $70.00 per camper (in-person) &nbsp;|&nbsp; ' +
+    'FJD $40.00 per camper (online)<br>' +
+    'Campers registered: <strong>' + campers.length + '</strong></p>' +
 
     // Camper details table header
-    '<h3 style="color:#5a3010;border-bottom:2px solid #DAA520;padding-bottom:6px;' +
-    'margin-bottom:12px;">\uD83C\uDFD5\uFE0F Camper Details</h3>' +
+    '<h3 style="color:#333;border-bottom:2px solid #ccc;padding-bottom:6px;' +
+    'margin-bottom:12px;">Camper Details</h3>' +
 
     // Table
     '<div style="overflow-x:auto;margin:0 0 24px;">' +
@@ -680,20 +630,17 @@ function buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee) {
     '\uD83D\uDCB3 <strong>Payment Deadline:</strong> 30 April 2026</p></div>' +
 
     // Contacts
-    '<p style="color:#5a3010;font-size:14px;line-height:1.8;">' +
-    'If you have any questions, please don\'t hesitate to reach out:<br>' +
-    '\uD83D\uDCB0 <strong>Finance queries:</strong> Salote \u2013 ' +
-    '<a href="mailto:salotesoroaqali@gmail.com" style="color:#8B4513;">' +
-    'salotesoroaqali@gmail.com</a><br>' +
-    '\uD83C\uDFD5\uFE0F <strong>Camp logistics:</strong> Laisane \u2013 ' +
-    '<a href="mailto:l.tubuna@gmail.com" style="color:#8B4513;">' +
+    '<p style="color:#333;font-size:14px;line-height:1.8;">' +
+    'For any questions, please contact:<br>' +
+    '<strong>Finance:</strong> Salote \u2013 ' +
+    '<a href="mailto:finance@advancedbreakthroughcentre.org" style="color:#555;">' +
+    'finance@advancedbreakthroughcentre.org</a><br>' +
+    '<strong>Camp logistics:</strong> Laisane \u2013 ' +
+    '<a href="mailto:l.tubuna@gmail.com" style="color:#555;">' +
     'l.tubuna@gmail.com</a></p>' +
 
-    '<p style="color:#5a3010;font-size:15px;line-height:1.7;margin-top:24px;">' +
-    'We cannot wait to see your family at camp. God bless! \uD83C\uDF1F</p>' +
-
-    '<p style="color:#8B4513;font-size:14px;font-style:italic;">' +
-    'Warm regards,<br><strong>ABC Ministry Team</strong><br>' +
+    '<p style="color:#333;font-size:14px;">' +
+    'Regards,<br><strong>ABC Youth Camp Team</strong><br>' +
     '2026 ABC Youth Camp</p>' +
 
     '</div>' + // end body div
@@ -706,28 +653,19 @@ function td(header, value) {
 }
 
 // ── Plain-text fallback ───────────────────────────────────────────────────────
-function buildConfirmationText_(guardianName, campers, feePerCamper, totalFee) {
+function buildConfirmationText_(guardianName, campers) {
   var lines = [
     'Dear ' + guardianName + ',',
     '',
-    'Thank you for registering for the 2026 ABC Youth Camp!',
-    'We are so excited to have your camper(s) join us.',
+    'Thank you for registering for the 2026 ABC Youth Camp.',
+    'Below is a summary of the camper(s) you have submitted.',
     '',
-    'FEE SUMMARY',
-    '-----------'
+    'Registration fee : FJD $70.00 per camper (in-person) / FJD $40.00 per camper (online)',
+    'Campers registered : ' + campers.length,
+    '',
+    'REGISTRATION SUMMARY',
+    '--------------------'
   ];
-
-  campers.forEach(function (c) {
-    lines.push('  Camper ' + c.number + ': ' + c.name + '  –  FJD $' + feePerCamper + '.00');
-  });
-  lines.push(
-    '  ' + '─'.repeat(38),
-    '  Total (' + campers.length + ' camper' + (campers.length === 1 ? '' : 's') +
-      ')  :  FJD $' + totalFee + '.00',
-    ''
-  );
-
-  lines.push('REGISTRATION SUMMARY', '--------------------');
 
   campers.forEach(function (c) {
     lines.push(
@@ -751,13 +689,11 @@ function buildConfirmationText_(guardianName, campers, feePerCamper, totalFee) {
     '  Payment Deadline      : 30 April 2026',
     '',
     'CONTACTS',
-    '  Finance queries : Salote  - salotesoroaqali@gmail.com',
+    '  Finance queries : Salote  - finance@advancedbreakthroughcentre.org',
     '  Camp logistics  : Laisane - l.tubuna@gmail.com',
     '',
-    'We cannot wait to see your family at camp. God bless!',
-    '',
-    'Warm regards,',
-    'ABC Ministry Team',
+    'Regards,',
+    'ABC Youth Camp Team',
     '2026 ABC Youth Camp'
   );
 
