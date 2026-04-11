@@ -768,9 +768,11 @@ function onFormSubmit(e) {
       var lbl = 'Camper ' + n;
       var name = responses[lbl + "'s Full Name"];
       if (!name) continue; // skip if section was left blank
+      var transport = responses["How will " + lbl + " be travelling to the camp-site?"] || '';
       campers.push({
         number:    n,
         name:      name,
+        fee:       transport === 'Virtual Attendance (Online)' ? 40 : 70,
         dob:       responses[lbl + "'s Date of Birth"]                                          || '',
         location:  responses['Location of ' + lbl]                                              || '',
         pg:        responses["What is " + lbl + "'s People's Group?"]                          || '',
@@ -778,14 +780,15 @@ function onFormSubmit(e) {
         medical:   responses["Does " + lbl + " have any current medical condition?"]           || '',
         allergies: responses["Is " + lbl + " allergic to anything?"]                           || '',
         dietary:   responses["Does " + lbl + " have any dietary requirements?"]               || '',
-        transport: responses["How will " + lbl + " be travelling to the camp-site?"]          || '',
+        transport: transport,
         goals:     responses["What are " + lbl + "'s expectations or goals for this camp?"]   || ''
       });
     }
 
-    var subject  = '2026 ABC Youth Camp \u2013 Registration Confirmed';
-    var htmlBody = buildConfirmationHtml_(guardianName, guardianEmail, campers);
-    var textBody = buildConfirmationText_(guardianName, guardianEmail, campers);
+    var totalFee  = campers.reduce(function (sum, c) { return sum + c.fee; }, 0);
+    var subject   = '2026 ABC Youth Camp \u2013 Registration Confirmed';
+    var htmlBody  = buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee);
+    var textBody  = buildConfirmationText_(guardianName, guardianEmail, campers, totalFee);
 
     MailApp.sendEmail({
       to:       guardianEmail,
@@ -800,7 +803,20 @@ function onFormSubmit(e) {
 }
 
 // ── HTML email builder ────────────────────────────────────────────────────────
-function buildConfirmationHtml_(guardianName, guardianEmail, campers) {
+function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) {
+  // Fee summary rows – one per camper
+  var feeRows = campers.map(function (c) {
+    var attendance = c.transport === 'Virtual Attendance (Online)' ? 'Online' : 'In-Person';
+    var bg = c.number % 2 === 0 ? '#f9f5ee' : '#ffffff';
+    return '<tr style="background:' + bg + '">' +
+      '<td style="padding:8px 10px;border:1px solid #ddd;color:#333;">' + c.number + '</td>' +
+      '<td style="padding:8px 10px;border:1px solid #ddd;color:#333;">' + c.name + '</td>' +
+      '<td style="padding:8px 10px;border:1px solid #ddd;color:#333;">' + attendance + '</td>' +
+      '<td style="padding:8px 10px;border:1px solid #ddd;color:#333;text-align:right;">FJD $' + c.fee + '.00</td>' +
+      '</tr>';
+  }).join('');
+
+  // Camper details rows
   var rows = campers.map(function (c) {
     return '<tr style="background:' + (c.number % 2 === 0 ? '#f9f5ee' : '#ffffff') + '">' +
       td('#', c.number) +
@@ -837,15 +853,30 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers) {
     'Below is a summary of the camper(s) you have submitted. ' +
     'Please check the details and contact us if any corrections are needed.</p>' +
 
-    '<p style="color:#333;font-size:14px;background:#f5f5f5;padding:10px 14px;' +
-    'border-left:4px solid #aaa;border-radius:3px;">' +
-    '<strong>Registration fee:</strong> FJD $70.00 per camper (in-person) &nbsp;|&nbsp; ' +
-    'FJD $40.00 per camper (online)<br>' +
-    'Campers registered: <strong>' + campers.length + '</strong></p>' +
+    // Fee summary table
+    '<h3 style="color:#333;border-bottom:2px solid #ccc;padding-bottom:6px;' +
+    'margin:20px 0 12px;">Registration Fees</h3>' +
+    '<div style="overflow-x:auto;margin-bottom:8px;">' +
+    '<table style="width:100%;max-width:520px;border-collapse:collapse;font-size:14px;">' +
+    '<thead><tr style="background:#555;color:#fff;">' +
+    '<th style="padding:10px;text-align:left;">#</th>' +
+    '<th style="padding:10px;text-align:left;">Camper Name</th>' +
+    '<th style="padding:10px;text-align:left;">Attendance</th>' +
+    '<th style="padding:10px;text-align:right;">Fee (FJD)</th>' +
+    '</tr></thead>' +
+    '<tbody>' + feeRows + '</tbody>' +
+    '<tfoot><tr style="background:#eee;">' +
+    '<td colspan="3" style="padding:10px;font-weight:bold;border-top:2px solid #ccc;color:#333;">' +
+    'Total (' + campers.length + ' camper' + (campers.length === 1 ? '' : 's') + ')</td>' +
+    '<td style="padding:10px;font-weight:bold;border-top:2px solid #ccc;color:#333;text-align:right;">' +
+    'FJD $' + totalFee + '.00</td>' +
+    '</tr></tfoot></table></div>' +
+    '<p style="font-size:12px;color:#888;margin-bottom:20px;">' +
+    'In-Person: FJD $70.00 per camper &nbsp;|&nbsp; Online: FJD $40.00 per camper</p>' +
 
     // Camper details table header
     '<h3 style="color:#333;border-bottom:2px solid #ccc;padding-bottom:6px;' +
-    'margin-bottom:12px;">Camper Details</h3>' +
+    'margin:20px 0 12px;">Camper Details</h3>' +
 
     // Table
     '<div style="overflow-x:auto;margin:0 0 24px;">' +
@@ -924,19 +955,30 @@ function td(header, value) {
 }
 
 // ── Plain-text fallback ───────────────────────────────────────────────────────
-function buildConfirmationText_(guardianName, guardianEmail, campers) {
+function buildConfirmationText_(guardianName, guardianEmail, campers, totalFee) {
   var lines = [
     'Dear ' + guardianName + ',',
     '',
     'Thank you for registering for the 2026 ABC Youth Camp.',
     'Below is a summary of the camper(s) you have submitted.',
     '',
-    'Registration fee : FJD $70.00 per camper (in-person) / FJD $40.00 per camper (online)',
-    'Campers registered : ' + campers.length,
-    '',
-    'REGISTRATION SUMMARY',
-    '--------------------'
+    'REGISTRATION FEES',
+    '-----------------'
   ];
+
+  campers.forEach(function (c) {
+    var attendance = c.transport === 'Virtual Attendance (Online)' ? 'Online' : 'In-Person';
+    lines.push('  Camper ' + c.number + ': ' + c.name +
+      '  (' + attendance + ')  –  FJD $' + c.fee + '.00');
+  });
+  lines.push(
+    '  ' + Array(42).join('-'),
+    '  Total (' + campers.length + ' camper' + (campers.length === 1 ? '' : 's') +
+      ')  :  FJD $' + totalFee + '.00',
+    ''
+  );
+
+  lines.push('REGISTRATION SUMMARY', '--------------------');
 
   campers.forEach(function (c) {
     lines.push(
@@ -1106,21 +1148,39 @@ function buildDonationPage_(name, email) {
     '<input type="text" id="amount" name="amount" placeholder="e.g. 50" required>' +
     '<button type="submit">Submit</button>' +
     '</form>' +
-    '<p class="note">Donations go towards supporting families who need financial assistance to attend camp.</p>' +
     '</div></body></html>';
 }
 
-/** Simple thank-you page shown after a choice is recorded. */
+/** Thank-you page shown after a payment choice or donation is recorded. */
 function buildThankYouPage_(choice) {
-  var label = choice === 'pay'    ? 'I am able to pay the camp fee.' :
-              choice === 'assist' ? 'I will need assistance for payment.' :
-                                   'I can pay and I am willing to donate more.';
+  var css = 'body{font-family:Arial,sans-serif;max-width:480px;margin:48px auto;' +
+    'padding:0 20px;color:#333;}h2{color:#444;}' +
+    '.card{border-radius:6px;padding:24px 28px;margin-top:20px;}';
+
+  if (choice === 'donate') {
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<style>' + css +
+      '.card{background:#f0f7f2;border:1px solid #b2d8bc;}' +
+      '</style></head><body>' +
+      '<h2>2026 ABC Youth Camp</h2>' +
+      '<div class="card">' +
+      '<p style="margin-top:0;font-size:18px;">Thank you for your generosity!</p>' +
+      '<p>Your donation amount has been recorded. The camp team truly appreciates ' +
+      'your willingness to go above and beyond.</p>' +
+      '<p style="margin-bottom:0;">We will be in touch with further details. ' +
+      'Thank you for supporting the 2026 ABC Youth Camp.</p>' +
+      '</div></body></html>';
+  }
+
+  var label = choice === 'pay'
+    ? 'I am able to pay the camp fee.'
+    : 'I will need assistance for payment.';
+
   return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
     '<meta name="viewport" content="width=device-width,initial-scale=1">' +
-    '<style>' +
-    'body{font-family:Arial,sans-serif;max-width:480px;margin:48px auto;padding:0 20px;color:#333;}' +
-    'h2{color:#444;}' +
-    '.card{background:#f0f7f2;border:1px solid #b2d8bc;border-radius:6px;padding:24px 28px;margin-top:20px;}' +
+    '<style>' + css +
+    '.card{background:#f0f7f2;border:1px solid #b2d8bc;}' +
     '</style></head><body>' +
     '<h2>2026 ABC Youth Camp</h2>' +
     '<div class="card">' +
