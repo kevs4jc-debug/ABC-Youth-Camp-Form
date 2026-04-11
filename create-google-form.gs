@@ -9,13 +9,17 @@
  *   Fill-in : https://docs.google.com/forms/d/e/1FAIpQLScvUL-b9WMIVA5BLyk-S0BPqFsI1glQA06Zckx3Q7kw8VY_uw/viewform
  *   Edit    : https://docs.google.com/forms/d/1zQ53mV8LAcEd_jJr5bJ05aLWCa32pGRpZrvhylhywTY/edit
  *
- * HOW TO RUN  (two steps – each stays under the 6-min execution limit)
+ * HOW TO RUN  (three steps – each well under the 6-min execution limit)
  *   1. Open https://script.google.com → New project.
  *   2. Paste this entire file into Code.gs.
- *   3. Run updateYouthCampForm()       – builds welcome, parents, campers 1-5.
- *   4. Run updateYouthCampForm_Step2() – builds campers 6-10, payment, navigation.
- *   5. Grant permissions when prompted on first run.
- *   6. The SAME form URL now reflects all changes.
+ *   3. Run clearForm()                 – deletes all existing items (re-run if
+ *                                        interrupted until the form is empty).
+ *   4. Run updateYouthCampForm()       – builds welcome, parents, campers 1-5.
+ *   5. Run updateYouthCampForm_Step2() – builds campers 6-10, payment, navigation.
+ *   6. Grant permissions when prompted on first run.
+ *   7. The SAME form URL now reflects all changes.
+ *
+ *   FIRST BUILD ONLY: skip step 3 (form is already empty).
  *
  * MANUAL STEPS AFTER RUNNING  (cannot be done via Apps Script)
  *   • Header image  : Form editor → palette icon (Customize theme)
@@ -48,19 +52,42 @@ var TOTAL_CAMPERS = 10;
 // Fill this in AFTER deploying the script as a Web App (see instructions below).
 var WEBAPP_URL    = '';
 
-// ── Main function – STEP 1 of 2 ──────────────────────────────────────────────
-// Run this first, then immediately run updateYouthCampForm_Step2().
+// ── STEP 0 – Clear the form ───────────────────────────────────────────────────
+// Run this FIRST (before updateYouthCampForm).
+// Safe to re-run if interrupted – it picks up where it left off.
+function clearForm() {
+  var form      = FormApp.openById(FORM_ID);
+  var startTime = new Date().getTime();
+  var MAX_MS    = 300000; // stop at 5 min to avoid the 6-min hard cut-off
+
+  var items = form.getItems();
+  if (items.length === 0) {
+    Logger.log('Form is already empty. Proceed to updateYouthCampForm().');
+    return;
+  }
+
+  for (var di = 0; di < items.length; di++) {
+    if (new Date().getTime() - startTime > MAX_MS) {
+      Logger.log('5-min safety stop. ' + (items.length - di) + ' item(s) remain. Run clearForm() again.');
+      return;
+    }
+    form.deleteItem(items[di]);
+  }
+
+  Logger.log('Form cleared (' + items.length + ' items deleted). Now run updateYouthCampForm().');
+}
+
+// ── STEP 1 of 2 – Build welcome, parents and campers 1-5 ─────────────────────
+// Run AFTER clearForm() completes with an empty form.
+// Then immediately run updateYouthCampForm_Step2().
 function updateYouthCampForm() {
 
   var form = FormApp.openById(FORM_ID);
 
-  // ── 1. Clear existing items ──────────────────────────────────────────────
-  // Fetch the list ONCE, then delete forward (0 → N).
-  // Forward order is required: navigation choices point to later page breaks,
-  // so deleting items BEFORE their targets avoids "Invalid data updating form".
-  var existing = form.getItems();
-  for (var di = 0; di < existing.length; di++) {
-    form.deleteItem(existing[di]);
+  // Safety check – abort if form still has items so nothing gets added twice.
+  if (form.getItems().length > 0) {
+    Logger.log('ERROR: Form is not empty. Run clearForm() first, then try again.');
+    return;
   }
 
   // ── 2. Form-level metadata ───────────────────────────────────────────────
