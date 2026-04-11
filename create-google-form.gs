@@ -174,18 +174,18 @@ function updateYouthCampForm() {
       .setRequired(true);
 
     form.addTextItem()
-      .setTitle(label + "'s Email Address")
-      .setHelpText("Enter the camper's email address if they have one.")
+      .setTitle(label + "'s Email Address (Optional)")
+      .setHelpText("If the camper has an email address, enter it here. If not, leave this blank.")
       .setValidation(FormApp.createTextValidation()
-        .setHelpText('Please enter a valid email address (e.g. name@example.com).')
+        .setHelpText('Please enter a valid email address (e.g. name@example.com), or leave blank.')
         .requireTextMatchesPattern('^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$')
         .build());
 
     form.addTextItem()
-      .setTitle(label + "'s Phone Contact")
-      .setHelpText("Enter the camper's mobile number (digits only, at least 7 numbers).")
+      .setTitle(label + "'s Phone Contact (Optional)")
+      .setHelpText("If the camper has a phone number, enter it here (digits only, at least 7 numbers). If not, leave this blank.")
       .setValidation(FormApp.createTextValidation()
-        .setHelpText('Please enter a valid phone number with at least 7 digits (no letters).')
+        .setHelpText('Please enter a valid phone number with at least 7 digits (no letters), or leave blank.')
         .requireTextMatchesPattern('^[+]?[\\d][\\d\\s\\-]{5,}[\\d]$')
         .build());
 
@@ -208,7 +208,7 @@ function updateYouthCampForm() {
       .setRequired(true);
 
     form.addMultipleChoiceItem()
-      .setTitle('Is ' + label + ' a coordinator?')
+      .setTitle('Is ' + label + ', a Youth Coordinator?')
       .setChoiceValues(['Yes', 'No'])
       .setRequired(true);
 
@@ -402,12 +402,38 @@ function updateYouthCampForm() {
     .setTitle('Payment & Camp Fees');
 
   form.addSectionHeaderItem()
-    .setTitle('Payment Information')
+    .setTitle('Registration Fees')
     .setHelpText(
-      'Camp fee details will be communicated to you directly by the organising team. ' +
-      'Please indicate your payment situation below.\n\n' +
-      'Payment Deadline: 30 April 2026\n' +
-      'Finance contact: Salote – salotesoroaqali@gmail.com'
+      'The registration fees for the 2026 ABC Youth Camp are as follows:\n\n' +
+      '  In-Person Payment : FJD $70.00 per camper\n' +
+      '  Online Payment    : FJD $40.00 per camper\n\n' +
+      'Your total will be based on the number of campers you have registered ' +
+      'and your chosen payment method.\n\n' +
+      'Deadline to pay camp fees : 30 April 2026'
+    );
+
+  form.addMultipleChoiceItem()
+    .setTitle('How will you be making your payment?')
+    .setChoiceValues([
+      'In-Person – FJD $70.00 per camper',
+      'Online – FJD $40.00 per camper'
+    ])
+    .setRequired(true);
+
+  form.addSectionHeaderItem()
+    .setTitle('Payment Instructions')
+    .setHelpText(
+      'You may pay the camp fees directly to ABC\'s BSP, Westpac, or MPAISA accounts.\n\n' +
+      'Bank Account Details:\n\n' +
+      '  BSP     – A/c# 3178242\n' +
+      '  A/c Name: Advanced Breakthrough Centre\n\n' +
+      '  Westpac – A/c# 9803986679\n' +
+      '  A/c Name: Advanced Breakthrough Centre\n\n' +
+      '  MPAISA  – Merchant Name: Advanced Breakthrough Centre\n\n' +
+      'For your narration, please put down the word CAMP and the family surname.\n' +
+      'Example: CAMPTakalaivuna (for the Takalaivuna family)\n\n' +
+      'Afterwards, please send us the transfer receipt from the bank or MPAISA to:\n' +
+      'finance@advancedbreakthroughcentre.org'
     );
 
   var paymentQ = form.addMultipleChoiceItem()
@@ -523,9 +549,13 @@ function onFormSubmit(e) {
       });
     }
 
+    var paymentMethod = responses['How will you be making your payment?'] || '';
+    var feePerCamper  = paymentMethod.indexOf('Online') !== -1 ? 40 : 70;
+    var totalFee      = campers.length * feePerCamper;
+
     var subject  = '\uD83C\uDFD5\uFE0F 2026 ABC Youth Camp \u2013 Registration Confirmed!';
-    var htmlBody = buildConfirmationHtml_(guardianName, campers);
-    var textBody = buildConfirmationText_(guardianName, campers);
+    var htmlBody = buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee);
+    var textBody = buildConfirmationText_(guardianName, campers, feePerCamper, totalFee);
 
     MailApp.sendEmail({
       to:       guardianEmail,
@@ -540,7 +570,17 @@ function onFormSubmit(e) {
 }
 
 // ── HTML email builder ────────────────────────────────────────────────────────
-function buildConfirmationHtml_(guardianName, campers) {
+function buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee) {
+  // Fee summary rows (one row per camper)
+  var feeRows = campers.map(function (c) {
+    return '<tr style="background:' + (c.number % 2 === 0 ? '#f9f5ee' : '#ffffff') + '">' +
+      '<td style="padding:8px;border:1px solid #e0d5c0;color:#3a2000;">' + c.number + '</td>' +
+      '<td style="padding:8px;border:1px solid #e0d5c0;color:#3a2000;">' + c.name + '</td>' +
+      '<td style="padding:8px;border:1px solid #e0d5c0;color:#3a2000;text-align:right;">' +
+        'FJD $' + feePerCamper + '.00</td>' +
+      '</tr>';
+  }).join('');
+
   var rows = campers.map(function (c) {
     return '<tr style="background:' + (c.number % 2 === 0 ? '#f9f5ee' : '#ffffff') + '">' +
       td('#', c.number) +
@@ -578,11 +618,34 @@ function buildConfirmationHtml_(guardianName, campers) {
     'and life-changing experience.</p>' +
 
     '<p style="color:#5a3010;line-height:1.7;font-size:15px;">' +
-    'Below is a summary of the camper(s) you have registered. Please review it and ' +
-    'reach out if anything needs to be corrected.</p>' +
+    'Below is a summary of the camper(s) you have registered, including the registration ' +
+    'fees. Please review it and reach out if anything needs to be corrected.</p>' +
+
+    // Fee summary table
+    '<h3 style="color:#5a3010;border-bottom:2px solid #DAA520;padding-bottom:6px;' +
+    'margin-bottom:12px;">\uD83D\uDCB0 Fee Summary</h3>' +
+    '<div style="overflow-x:auto;margin:0 0 28px;">' +
+    '<table style="width:100%;max-width:520px;border-collapse:collapse;font-size:14px;' +
+    'box-shadow:0 2px 8px rgba(0,0,0,.10);">' +
+    '<thead><tr style="background:#8B4513;color:#fff;">' +
+    '<th style="padding:10px 12px;text-align:left;">#</th>' +
+    '<th style="padding:10px 12px;text-align:left;">Camper Name</th>' +
+    '<th style="padding:10px 12px;text-align:right;">Fee</th>' +
+    '</tr></thead><tbody>' + feeRows +
+    '<tr style="background:#f0e6cc;">' +
+    '<td colspan="2" style="padding:10px 12px;font-weight:bold;color:#3a2000;' +
+    'border:1px solid #e0d5c0;">Total (' + campers.length + ' camper' +
+    (campers.length === 1 ? '' : 's') + ')</td>' +
+    '<td style="padding:10px 12px;font-weight:bold;color:#2a5a00;text-align:right;' +
+    'border:1px solid #e0d5c0;">FJD $' + totalFee + '.00</td>' +
+    '</tr></tbody></table></div>' +
+
+    // Camper details table header
+    '<h3 style="color:#5a3010;border-bottom:2px solid #DAA520;padding-bottom:6px;' +
+    'margin-bottom:12px;">\uD83C\uDFD5\uFE0F Camper Details</h3>' +
 
     // Table
-    '<div style="overflow-x:auto;margin:24px 0;">' +
+    '<div style="overflow-x:auto;margin:0 0 24px;">' +
     '<table style="width:100%;border-collapse:collapse;font-size:13px;' +
     'box-shadow:0 2px 8px rgba(0,0,0,.12);">' +
     '<thead>' +
@@ -634,16 +697,28 @@ function td(header, value) {
 }
 
 // ── Plain-text fallback ───────────────────────────────────────────────────────
-function buildConfirmationText_(guardianName, campers) {
+function buildConfirmationText_(guardianName, campers, feePerCamper, totalFee) {
   var lines = [
     'Dear ' + guardianName + ',',
     '',
     'Thank you for registering for the 2026 ABC Youth Camp!',
     'We are so excited to have your camper(s) join us.',
     '',
-    'REGISTRATION SUMMARY',
-    '--------------------'
+    'FEE SUMMARY',
+    '-----------'
   ];
+
+  campers.forEach(function (c) {
+    lines.push('  Camper ' + c.number + ': ' + c.name + '  –  FJD $' + feePerCamper + '.00');
+  });
+  lines.push(
+    '  ' + '─'.repeat(38),
+    '  Total (' + campers.length + ' camper' + (campers.length === 1 ? '' : 's') +
+      ')  :  FJD $' + totalFee + '.00',
+    ''
+  );
+
+  lines.push('REGISTRATION SUMMARY', '--------------------');
 
   campers.forEach(function (c) {
     lines.push(
