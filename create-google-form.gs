@@ -9,12 +9,13 @@
  *   Fill-in : https://docs.google.com/forms/d/e/1FAIpQLScvUL-b9WMIVA5BLyk-S0BPqFsI1glQA06Zckx3Q7kw8VY_uw/viewform
  *   Edit    : https://docs.google.com/forms/d/1zQ53mV8LAcEd_jJr5bJ05aLWCa32pGRpZrvhylhywTY/edit
  *
- * HOW TO RUN
+ * HOW TO RUN  (two steps – each stays under the 6-min execution limit)
  *   1. Open https://script.google.com → New project.
  *   2. Paste this entire file into Code.gs.
- *   3. Click Run → updateYouthCampForm.
- *   4. Grant permissions when prompted.
- *   5. The SAME form URL now reflects all changes.
+ *   3. Run updateYouthCampForm()       – builds welcome, parents, campers 1-5.
+ *   4. Run updateYouthCampForm_Step2() – builds campers 6-10, payment, navigation.
+ *   5. Grant permissions when prompted on first run.
+ *   6. The SAME form URL now reflects all changes.
  *
  * MANUAL STEPS AFTER RUNNING  (cannot be done via Apps Script)
  *   • Header image  : Form editor → palette icon (Customize theme)
@@ -47,16 +48,17 @@ var TOTAL_CAMPERS = 10;
 // Fill this in AFTER deploying the script as a Web App (see instructions below).
 var WEBAPP_URL    = '';
 
-// ── Main function ──────────────────────────────────────────────────────────
+// ── Main function – STEP 1 of 2 ──────────────────────────────────────────────
+// Run this first, then immediately run updateYouthCampForm_Step2().
 function updateYouthCampForm() {
 
   var form = FormApp.openById(FORM_ID);
 
-  // ── 1. Clear every existing item ────────────────────────────────────────
-  // Always fetch a fresh reference to item[0] so stale IDs from branching
-  // dependencies never cause "Invalid data updating form".
-  while (form.getItems().length > 0) {
-    form.deleteItem(form.getItems()[0]);
+  // ── 1. Clear existing items ──────────────────────────────────────────────
+  // Fetch the list ONCE, then delete from the end so indices stay stable.
+  var existing = form.getItems();
+  for (var di = existing.length - 1; di >= 0; di--) {
+    form.deleteItem(existing[di]);
   }
 
   // ── 2. Form-level metadata ───────────────────────────────────────────────
@@ -146,16 +148,11 @@ function updateYouthCampForm() {
     ])
     .setRequired(true);
 
-  // ── 5. CAMPER SECTIONS (1 – 10) ─────────────────────────────────────────
+  // ── 5. CAMPER SECTIONS 1–5 ──────────────────────────────────────────────
   var camperBasicPages = [];
   var moreCampersItems = [];
 
-  var ORDINALS = [
-    'First','Second','Third','Fourth','Fifth',
-    'Sixth','Seventh','Eighth','Ninth','Tenth'
-  ];
-
-  for (var n = 1; n <= TOTAL_CAMPERS; n++) {
+  for (var n = 1; n <= 5; n++) {
     var label  = 'Camper ' + n;
     var isLast = (n === TOTAL_CAMPERS);
 
@@ -395,9 +392,249 @@ function updateYouthCampForm() {
       moreCampersItems.push(moreCampersQ);
     }
 
-  } // end camper loop
+  } // end camper 1-5 loop
 
-  // ── 6. PAYMENT & CAMP FEES ───────────────────────────────────────────────
+  // ── 6. Save page IDs so Step 2 can set up navigation ────────────────────
+  PropertiesService.getScriptProperties().setProperties({
+    'camperBasicPageIds': JSON.stringify(camperBasicPages.map(function (p) { return p.getId(); })),
+    'moreCampersItemIds': JSON.stringify(moreCampersItems.map(function (q) { return q.getId(); }))
+  });
+
+  Logger.log('Step 1 complete – campers 1-5 built.');
+  Logger.log('Now run updateYouthCampForm_Step2() to add campers 6-10, payment, and navigation.');
+}
+
+// ── Main function – STEP 2 of 2 ──────────────────────────────────────────────
+// Run this immediately after updateYouthCampForm() finishes.
+function updateYouthCampForm_Step2() {
+
+  var form  = FormApp.openById(FORM_ID);
+  var props = PropertiesService.getScriptProperties();
+
+  // ── Restore state from Step 1 ────────────────────────────────────────────
+  var basicPageIds   = JSON.parse(props.getProperty('camperBasicPageIds') || '[]');
+  var moreCampersIds = JSON.parse(props.getProperty('moreCampersItemIds') || '[]');
+
+  // Build a lookup map so we can find items by their numeric ID.
+  var itemById = {};
+  form.getItems().forEach(function (it) { itemById[it.getId()] = it; });
+
+  var camperBasicPages = basicPageIds.map(function (id) { return itemById[id].asPageBreakItem(); });
+  var moreCampersItems = moreCampersIds.map(function (id) { return itemById[id].asMultipleChoiceItem(); });
+
+  // ── CAMPER SECTIONS 6–10 ─────────────────────────────────────────────────
+  for (var n = 6; n <= TOTAL_CAMPERS; n++) {
+    var label  = 'Camper ' + n;
+    var isLast = (n === TOTAL_CAMPERS);
+
+    // ── Basic Information ────────────────────────────────────────────────
+    var basicPage = form.addPageBreakItem()
+      .setTitle(label + ' – Basic Information')
+      .setHelpText('Complete this section only if you are registering ' + n + ' or more campers.');
+    camperBasicPages.push(basicPage);
+
+    form.addTextItem()
+      .setTitle(label + "'s Full Name")
+      .setRequired(true);
+
+    form.addTextItem()
+      .setTitle(label + "'s Email Address (Optional)")
+      .setHelpText("If the camper has an email address, enter it here. If not, leave this blank.")
+      .setValidation(FormApp.createTextValidation()
+        .setHelpText('Please enter a valid email address (e.g. name@example.com), or leave blank.')
+        .requireTextMatchesPattern('^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$')
+        .build());
+
+    form.addTextItem()
+      .setTitle(label + "'s Phone Contact (Optional)")
+      .setHelpText("If the camper has a phone number, enter it here (digits only, at least 7 numbers). If not, leave this blank.")
+      .setValidation(FormApp.createTextValidation()
+        .setHelpText('Please enter a valid phone number with at least 7 digits (no letters), or leave blank.')
+        .requireTextMatchesPattern('^[+]?[\\d][\\d\\s\\-]{5,}[\\d]$')
+        .build());
+
+    form.addDateItem()
+      .setTitle(label + "'s Date of Birth")
+      .setRequired(true);
+
+    form.addMultipleChoiceItem()
+      .setTitle('Location of ' + label)
+      .setChoiceValues(['Suva', 'Lautoka', 'Nadi', 'Levuka', 'Vanua Levu', 'Overseas'])
+      .showOtherOption(true)
+      .setRequired(true);
+
+    form.addMultipleChoiceItem()
+      .setTitle("What is " + label + "'s People's Group?")
+      .setChoiceValues([
+        'Project Heritage', 'Evolution', 'X-Elle GPS', 'Hebron GPS',
+        'X-Elle', 'Charis', 'Hebron', 'Not yet in a PG'
+      ])
+      .setRequired(true);
+
+    form.addMultipleChoiceItem()
+      .setTitle('Is ' + label + ', a Youth Coordinator?')
+      .setChoiceValues(['Yes', 'No'])
+      .setRequired(true);
+
+    // ── Education & Employment Status ──────────────────────────────────
+    form.addPageBreakItem()
+      .setTitle(label + ' – Education & Employment Status');
+
+    var eduQ = form.addMultipleChoiceItem()
+      .setTitle("What is " + label + "'s current education or employment status?")
+      .setRequired(true);
+
+    var priSecPage = form.addPageBreakItem()
+      .setTitle(label + ' – School Details (Primary / Secondary)');
+
+    form.addTextItem()
+      .setTitle("Name of " + label + "'s school")
+      .setRequired(true);
+
+    form.addMultipleChoiceItem()
+      .setTitle("What year is " + label + " in?")
+      .setChoiceValues([
+        'Year 6', 'Year 7', 'Year 8',  'Year 9',
+        'Year 10', 'Year 11', 'Year 12', 'Year 13'
+      ])
+      .setRequired(true);
+
+    var tertiaryPage = form.addPageBreakItem()
+      .setTitle(label + ' – Tertiary Education Details');
+
+    form.addMultipleChoiceItem()
+      .setTitle("Which tertiary institution does " + label + " attend?")
+      .setChoiceValues([
+        'University of the South Pacific (USP)',
+        'Fiji National University (FNU)',
+        'University of Fiji'
+      ])
+      .showOtherOption(true)
+      .setRequired(true);
+
+    form.addTextItem()
+      .setTitle("What program or course is " + label + " studying?")
+      .setRequired(true);
+
+    form.addMultipleChoiceItem()
+      .setTitle("What is " + label + "'s employment status? (if also employed)")
+      .setChoiceValues(['Full Time', 'Part Time'])
+      .setHelpText('Leave blank if not currently employed alongside studies.');
+
+    var professionalPage = form.addPageBreakItem()
+      .setTitle(label + ' – Employment Details');
+
+    form.addTextItem()
+      .setTitle("What is " + label + "'s occupation?")
+      .setRequired(true);
+
+    form.addMultipleChoiceItem()
+      .setTitle("What is " + label + "'s employment status?")
+      .setChoiceValues(['Full Time', 'Part Time'])
+      .setRequired(true);
+
+    // ── Health & Medical ───────────────────────────────────────────────
+    var healthPage = form.addPageBreakItem()
+      .setTitle(label + ' – Health & Medical');
+
+    priSecPage.setGoToPage(healthPage);
+    tertiaryPage.setGoToPage(healthPage);
+    professionalPage.setGoToPage(healthPage);
+
+    eduQ.setChoices([
+      eduQ.createChoice('Primary School',        priSecPage),
+      eduQ.createChoice('Secondary School',      priSecPage),
+      eduQ.createChoice('Tertiary / Vocational', tertiaryPage),
+      eduQ.createChoice('Working Professional',  professionalPage),
+      eduQ.createChoice('Other',                 healthPage)
+    ]);
+
+    var medQ = form.addMultipleChoiceItem()
+      .setTitle("Does " + label + " have any current medical condition?")
+      .setHelpText("Selecting 'Yes' will take you to a section for medical details.")
+      .setRequired(true);
+
+    var medDetailsPage = form.addPageBreakItem()
+      .setTitle(label + ' – Medical Condition Details');
+
+    form.addParagraphTextItem()
+      .setTitle("Please describe " + label + "'s current medical condition(s)")
+      .setRequired(true);
+
+    form.addMultipleChoiceItem()
+      .setTitle("Will this condition affect " + label + "'s ability to participate in physical activities?")
+      .setChoiceValues(['Yes', 'No'])
+      .setRequired(true);
+
+    form.addParagraphTextItem()
+      .setTitle("If yes above – please explain how the condition affects participation")
+      .setHelpText('Complete only if the condition affects physical activities.');
+
+    form.addMultipleChoiceItem()
+      .setTitle("Is " + label + " currently taking any medication?")
+      .setChoiceValues(['Yes', 'No'])
+      .setRequired(true);
+
+    form.addParagraphTextItem()
+      .setTitle("If yes – please state the medication(s) " + label + " is taking")
+      .setHelpText('Complete only if the camper is currently on medication.');
+
+    var lifestylePage = form.addPageBreakItem()
+      .setTitle(label + ' – Allergies, Activities & Travel');
+
+    medDetailsPage.setGoToPage(lifestylePage);
+    medQ.setChoices([
+      medQ.createChoice('Yes', medDetailsPage),
+      medQ.createChoice('No',  lifestylePage)
+    ]);
+
+    form.addMultipleChoiceItem()
+      .setTitle("Is " + label + " allergic to anything?")
+      .setChoiceValues(['Yes', 'No'])
+      .setRequired(true);
+
+    form.addParagraphTextItem()
+      .setTitle("If yes – please state the type of allergy / allergies")
+      .setHelpText('Complete only if the camper has allergies.');
+
+    form.addMultipleChoiceItem()
+      .setTitle("Will " + label + " be able to participate in all outdoor activities?")
+      .setChoiceValues(['Yes', 'No'])
+      .setRequired(true);
+
+    form.addParagraphTextItem()
+      .setTitle("If no – please explain why")
+      .setHelpText('Complete only if the camper cannot participate in all activities.');
+
+    form.addMultipleChoiceItem()
+      .setTitle("Does " + label + " have any dietary requirements?")
+      .setChoiceValues(['Yes', 'No'])
+      .setRequired(true);
+
+    form.addParagraphTextItem()
+      .setTitle("If yes – please state the dietary requirements")
+      .setHelpText('Complete only if the camper has dietary requirements.');
+
+    form.addMultipleChoiceItem()
+      .setTitle("How will " + label + " be travelling to the camp-site?")
+      .setChoiceValues(['Organised Transport', 'Own Transport', 'Virtual Attendance (Online)'])
+      .setRequired(true);
+
+    form.addParagraphTextItem()
+      .setTitle("What are " + label + "'s expectations or goals for this camp?")
+      .setRequired(true);
+
+    if (!isLast) {
+      var moreCampersQ = form.addMultipleChoiceItem()
+        .setTitle('Are you registering another camper?')
+        .setHelpText("Select 'Yes' to add another camper, or 'No' to proceed to the next section.")
+        .setRequired(true);
+      moreCampersItems.push(moreCampersQ);
+    }
+
+  } // end camper 6-10 loop
+
+  // ── PAYMENT & CAMP FEES ──────────────────────────────────────────────────
   var paymentPage = form.addPageBreakItem()
     .setTitle('Payment & Camp Fees');
 
@@ -458,18 +695,21 @@ function updateYouthCampForm() {
     )
   ]);
 
-  // ── 7. SET UP "MORE CAMPERS?" BRANCHING ─────────────────────────────────
+  // ── Set up "More Campers?" navigation for ALL 9 gateway questions ────────
   for (var i = 0; i < moreCampersItems.length; i++) {
     var q        = moreCampersItems[i];
-    var nextPage = camperBasicPages[i + 1]; // next camper's basic info section
+    var nextPage = camperBasicPages[i + 1];
     q.setChoices([
       q.createChoice('Yes, I have another camper to register', nextPage),
       q.createChoice('No, that is all the campers',            paymentPage)
     ]);
   }
 
-  // ── Done ─────────────────────────────────────────────────────────────────
-  Logger.log('Form updated successfully!');
+  // Clean up stored properties
+  props.deleteProperty('camperBasicPageIds');
+  props.deleteProperty('moreCampersItemIds');
+
+  Logger.log('Step 2 complete – form fully updated!');
   Logger.log('Fill-in URL : ' + form.getPublishedUrl());
   Logger.log('Edit URL    : ' + form.getEditUrl());
 }
