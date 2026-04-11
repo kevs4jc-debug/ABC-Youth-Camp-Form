@@ -82,25 +82,34 @@ function updateYouthCampForm() {
   form.setAllowResponseEdits(true);
   form.setShowLinkToRespondAgain(false);
 
-  // ── 3. WELCOME SECTION (first page – no page break before it) ──────────
-  //
-  // TIP  ▸  For stylish fonts open the form editor → palette icon
-  //         (Customize theme) → Text → choose a display font such as
-  //         "Pacifico", "Lobster", or "Dancing Script" for the heading.
-  //         Then pick warm earth/orange tones to match the camp logo.
+  // ── 3. INTRODUCTION + INSTRUCTIONS (first page – no page break before it) ─
   form.addSectionHeaderItem()
-    .setTitle('\uD83C\uDF1F\u2728  Welcome to ABC Youth Camp 2026!  \u2728\uD83C\uDF1F')
+    .setTitle('INTRODUCTION')
     .setHelpText(
-      '\uD83D\uDC9A  A transformative journey of faith, leadership & community  \uD83D\uDC9A\n\n' +
-      'ABC Youth Camp 2026 is crafted to ignite spiritual growth, develop ' +
-      'bold leaders, and build a generation of young people deeply rooted ' +
-      'in community and purpose.\n\n' +
-      'We are SO excited to journey alongside your family this year and ' +
-      'cannot wait to see what God will do through each and every camper!\n\n' +
-      '\uD83D\uDD25  Get ready for an incredible experience!\n\n' +
-      '\uD83D\uDCC5  Registration closes  \u2794  19 April 2026\n' +
-      '\uD83D\uDCB0  Payment due by       \u2794  30 April 2026\n\n' +
-      '\u27A1\uFE0F  Click NEXT to begin the registration.'
+      'The 2026 ABC Youth Camp will take place from May 4th to May 8th, 2026, ' +
+      'at Coral Coast Christian Camp in Deuba, Fiji.\n\n' +
+      'The camp will focus on the following group of youths:\n' +
+      '  \u2022 Project Heritage (Year 8+)\n' +
+      '  \u2022 Evolution\n' +
+      '  \u2022 Hebron GPS and X-Elle GPS (secondary school students only)\n\n' +
+      'Tertiary students and young professionals may also attend the camp, ' +
+      'provided they are free on those dates.\n\n' +
+      '\uD83D\uDCC5 Registration Deadline : 19 April 2026\n' +
+      '\uD83D\uDCB3 Payment Deadline      : 30 April 2026\n\n' +
+      'For enquiries:\n' +
+      '  Finance   \u2013 Salote  : finance@advancedbreakthroughcentre.org\n' +
+      '  Logistics \u2013 Laisane : l.tubuna@gmail.com'
+    );
+
+  form.addSectionHeaderItem()
+    .setTitle('INSTRUCTIONS ON HOW TO USE THE FORM')
+    .setHelpText(
+      'The following sections will need to be filled by parents or guardians.\n\n' +
+      'Section 2: Parents and Guardians Information\n\n' +
+      'Section 3 onwards: Camper\'s personal details\n\n' +
+      'Do contact us on our email (finance@advancedbreakthroughcentre.org) if you ' +
+      'need further instructions regarding filling this form.\n\n' +
+      '\u27A1\uFE0F Click NEXT to begin the registration.'
     );
 
   // ── 4. PARENTS AND GUARDIANS INFORMATION (separate page) ────────────────
