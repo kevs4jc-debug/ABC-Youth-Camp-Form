@@ -44,6 +44,8 @@
 // ── Configuration ──────────────────────────────────────────────────────────
 var FORM_ID       = '1zQ53mV8LAcEd_jJr5bJ05aLWCa32pGRpZrvhylhywTY';
 var TOTAL_CAMPERS = 10;
+// Fill this in AFTER deploying the script as a Web App (see instructions below).
+var WEBAPP_URL    = '';
 
 // ── Main function ──────────────────────────────────────────────────────────
 function updateYouthCampForm() {
@@ -59,48 +61,46 @@ function updateYouthCampForm() {
 
   // ── 2. Form-level metadata ───────────────────────────────────────────────
   form.setTitle('\uD83C\uDFD5\uFE0F  2026 ABC Youth Camp  \uD83C\uDFD5\uFE0F');
-  form.setDescription(
-    '\u2728 Welcome to ABC Youth Camp 2026! \u2728\n\n' +
-    '\uD83C\uDF31  This camp is designed to empower young people through ' +
-    'spiritual growth, leadership development, and community connection.\n\n' +
-    '\uD83D\uDCC5  Registration Deadline : 19 April 2026\n' +
-    '\uD83D\uDCB3  Payment Deadline      : 30 April 2026\n\n' +
-    '\u2709\uFE0F  For enquiries:\n' +
-    '       Finance   \u2013 Salote  : salotesoroaqali@gmail.com\n' +
-    '       Logistics \u2013 Laisane : l.tubuna@gmail.com\n\n' +
-    '\u270F\uFE0F  Please complete all required fields (*) accurately.'
-  );
+  form.setDescription('');
   form.setConfirmationMessage(
     'Thank you for registering for the 2026 ABC Youth Camp!\n\n' +
-    'Your registration has been successfully submitted. ' +
-    'We look forward to seeing you at camp!\n\n' +
+    'Your registration has been successfully submitted.\n\n' +
     'If you have any questions please reach out to:\n' +
-    '  Finance queries : Salote – salotesoroaqali@gmail.com\n' +
+    '  Finance queries : Salote  – finance@advancedbreakthroughcentre.org\n' +
     '  Camp logistics  : Laisane – l.tubuna@gmail.com'
   );
   form.setIsQuiz(false);
   form.setAllowResponseEdits(true);
   form.setShowLinkToRespondAgain(false);
 
-  // ── 3. WELCOME SECTION (first page – no page break before it) ──────────
-  //
-  // TIP  ▸  For stylish fonts open the form editor → palette icon
-  //         (Customize theme) → Text → choose a display font such as
-  //         "Pacifico", "Lobster", or "Dancing Script" for the heading.
-  //         Then pick warm earth/orange tones to match the camp logo.
+  // ── 3. INTRODUCTION + INSTRUCTIONS (first page – no page break before it) ─
   form.addSectionHeaderItem()
-    .setTitle('\uD83C\uDF1F\u2728  Welcome to ABC Youth Camp 2026!  \u2728\uD83C\uDF1F')
+    .setTitle('INTRODUCTION')
     .setHelpText(
-      '\uD83D\uDC9A  A transformative journey of faith, leadership & community  \uD83D\uDC9A\n\n' +
-      'ABC Youth Camp 2026 is crafted to ignite spiritual growth, develop ' +
-      'bold leaders, and build a generation of young people deeply rooted ' +
-      'in community and purpose.\n\n' +
-      'We are SO excited to journey alongside your family this year and ' +
-      'cannot wait to see what God will do through each and every camper!\n\n' +
-      '\uD83D\uDD25  Get ready for an incredible experience!\n\n' +
-      '\uD83D\uDCC5  Registration closes  \u2794  19 April 2026\n' +
-      '\uD83D\uDCB0  Payment due by       \u2794  30 April 2026\n\n' +
-      '\u27A1\uFE0F  Click NEXT to begin the registration.'
+      'The 2026 ABC Youth Camp will take place from May 4th to May 8th, 2026, ' +
+      'at Coral Coast Christian Camp in Deuba, Fiji.\n\n' +
+      'The camp will focus on the following group of youths:\n' +
+      '  \u2022 Project Heritage (Year 8+)\n' +
+      '  \u2022 Evolution\n' +
+      '  \u2022 Hebron GPS and X-Elle GPS (secondary school students only)\n\n' +
+      'Tertiary students and young professionals may also attend the camp, ' +
+      'provided they are free on those dates.\n\n' +
+      '\uD83D\uDCC5 Registration Deadline : 19 April 2026\n' +
+      '\uD83D\uDCB3 Payment Deadline      : 30 April 2026\n\n' +
+      'For enquiries:\n' +
+      '  Finance   \u2013 Salote  : finance@advancedbreakthroughcentre.org\n' +
+      '  Logistics \u2013 Laisane : l.tubuna@gmail.com'
+    );
+
+  form.addSectionHeaderItem()
+    .setTitle('INSTRUCTIONS ON HOW TO USE THE FORM')
+    .setHelpText(
+      'The following sections will need to be filled by parents or guardians.\n\n' +
+      'Section 2: Parents and Guardians Information\n\n' +
+      'Section 3 onwards: Camper\'s personal details\n\n' +
+      'Do contact us on our email (finance@advancedbreakthroughcentre.org) if you ' +
+      'need further instructions regarding filling this form.\n\n' +
+      '\u27A1\uFE0F Click NEXT to begin the registration.'
     );
 
   // ── 4. PARENTS AND GUARDIANS INFORMATION (separate page) ────────────────
@@ -405,20 +405,12 @@ function updateYouthCampForm() {
     .setTitle('Registration Fees')
     .setHelpText(
       'The registration fees for the 2026 ABC Youth Camp are as follows:\n\n' +
-      '  In-Person Payment : FJD $70.00 per camper\n' +
-      '  Online Payment    : FJD $40.00 per camper\n\n' +
+      '  \u2022 FJD $70.00 per camper\n' +
+      '  \u2022 FJD $40.00 per camper if attending online\n\n' +
       'Your total will be based on the number of campers you have registered ' +
-      'and your chosen payment method.\n\n' +
+      'and whether the camper attends in person or online.\n\n' +
       'Deadline to pay camp fees : 30 April 2026'
     );
-
-  form.addMultipleChoiceItem()
-    .setTitle('How will you be making your payment?')
-    .setChoiceValues([
-      'In-Person – FJD $70.00 per camper',
-      'Online – FJD $40.00 per camper'
-    ])
-    .setRequired(true);
 
   form.addSectionHeaderItem()
     .setTitle('Payment Instructions')
@@ -549,13 +541,9 @@ function onFormSubmit(e) {
       });
     }
 
-    var paymentMethod = responses['How will you be making your payment?'] || '';
-    var feePerCamper  = paymentMethod.indexOf('Online') !== -1 ? 40 : 70;
-    var totalFee      = campers.length * feePerCamper;
-
-    var subject  = '\uD83C\uDFD5\uFE0F 2026 ABC Youth Camp \u2013 Registration Confirmed!';
-    var htmlBody = buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee);
-    var textBody = buildConfirmationText_(guardianName, campers, feePerCamper, totalFee);
+    var subject  = '2026 ABC Youth Camp \u2013 Registration Confirmed';
+    var htmlBody = buildConfirmationHtml_(guardianName, guardianEmail, campers);
+    var textBody = buildConfirmationText_(guardianName, guardianEmail, campers);
 
     MailApp.sendEmail({
       to:       guardianEmail,
@@ -570,17 +558,7 @@ function onFormSubmit(e) {
 }
 
 // ── HTML email builder ────────────────────────────────────────────────────────
-function buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee) {
-  // Fee summary rows (one row per camper)
-  var feeRows = campers.map(function (c) {
-    return '<tr style="background:' + (c.number % 2 === 0 ? '#f9f5ee' : '#ffffff') + '">' +
-      '<td style="padding:8px;border:1px solid #e0d5c0;color:#3a2000;">' + c.number + '</td>' +
-      '<td style="padding:8px;border:1px solid #e0d5c0;color:#3a2000;">' + c.name + '</td>' +
-      '<td style="padding:8px;border:1px solid #e0d5c0;color:#3a2000;text-align:right;">' +
-        'FJD $' + feePerCamper + '.00</td>' +
-      '</tr>';
-  }).join('');
-
+function buildConfirmationHtml_(guardianName, guardianEmail, campers) {
   var rows = campers.map(function (c) {
     return '<tr style="background:' + (c.number % 2 === 0 ? '#f9f5ee' : '#ffffff') + '">' +
       td('#', c.number) +
@@ -610,39 +588,22 @@ function buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee) {
     // Body
     '<div style="max-width:700px;margin:0 auto;padding:32px 24px;">' +
 
-    '<p style="font-size:17px;color:#4a2c0a;">Dear <strong>' + guardianName + '</strong>,</p>' +
+    '<p style="font-size:16px;color:#333;">Dear <strong>' + guardianName + '</strong>,</p>' +
 
-    '<p style="color:#5a3010;line-height:1.7;font-size:15px;">' +
-    'Thank you so much for registering for the <strong>2026 ABC Youth Camp</strong>! \uD83D\uDE4F ' +
-    'We are thrilled to have your camper(s) join us for what is going to be an incredible ' +
-    'and life-changing experience.</p>' +
+    '<p style="color:#333;line-height:1.7;font-size:14px;">' +
+    'Thank you for registering for the <strong>2026 ABC Youth Camp</strong>. ' +
+    'Below is a summary of the camper(s) you have submitted. ' +
+    'Please check the details and contact us if any corrections are needed.</p>' +
 
-    '<p style="color:#5a3010;line-height:1.7;font-size:15px;">' +
-    'Below is a summary of the camper(s) you have registered, including the registration ' +
-    'fees. Please review it and reach out if anything needs to be corrected.</p>' +
-
-    // Fee summary table
-    '<h3 style="color:#5a3010;border-bottom:2px solid #DAA520;padding-bottom:6px;' +
-    'margin-bottom:12px;">\uD83D\uDCB0 Fee Summary</h3>' +
-    '<div style="overflow-x:auto;margin:0 0 28px;">' +
-    '<table style="width:100%;max-width:520px;border-collapse:collapse;font-size:14px;' +
-    'box-shadow:0 2px 8px rgba(0,0,0,.10);">' +
-    '<thead><tr style="background:#8B4513;color:#fff;">' +
-    '<th style="padding:10px 12px;text-align:left;">#</th>' +
-    '<th style="padding:10px 12px;text-align:left;">Camper Name</th>' +
-    '<th style="padding:10px 12px;text-align:right;">Fee</th>' +
-    '</tr></thead><tbody>' + feeRows +
-    '<tr style="background:#f0e6cc;">' +
-    '<td colspan="2" style="padding:10px 12px;font-weight:bold;color:#3a2000;' +
-    'border:1px solid #e0d5c0;">Total (' + campers.length + ' camper' +
-    (campers.length === 1 ? '' : 's') + ')</td>' +
-    '<td style="padding:10px 12px;font-weight:bold;color:#2a5a00;text-align:right;' +
-    'border:1px solid #e0d5c0;">FJD $' + totalFee + '.00</td>' +
-    '</tr></tbody></table></div>' +
+    '<p style="color:#333;font-size:14px;background:#f5f5f5;padding:10px 14px;' +
+    'border-left:4px solid #aaa;border-radius:3px;">' +
+    '<strong>Registration fee:</strong> FJD $70.00 per camper (in-person) &nbsp;|&nbsp; ' +
+    'FJD $40.00 per camper (online)<br>' +
+    'Campers registered: <strong>' + campers.length + '</strong></p>' +
 
     // Camper details table header
-    '<h3 style="color:#5a3010;border-bottom:2px solid #DAA520;padding-bottom:6px;' +
-    'margin-bottom:12px;">\uD83C\uDFD5\uFE0F Camper Details</h3>' +
+    '<h3 style="color:#333;border-bottom:2px solid #ccc;padding-bottom:6px;' +
+    'margin-bottom:12px;">Camper Details</h3>' +
 
     // Table
     '<div style="overflow-x:auto;margin:0 0 24px;">' +
@@ -670,21 +631,45 @@ function buildConfirmationHtml_(guardianName, campers, feePerCamper, totalFee) {
     '\uD83D\uDCC5 <strong>Registration Deadline:</strong> 19 April 2026<br>' +
     '\uD83D\uDCB3 <strong>Payment Deadline:</strong> 30 April 2026</p></div>' +
 
+    // Payment confirmation buttons (only shown if WEBAPP_URL is configured)
+    (WEBAPP_URL ? (function () {
+      var enc       = encodeURIComponent;
+      var base      = WEBAPP_URL + '?name=' + enc(guardianName) + '&email=' + enc(guardianEmail);
+      var payUrl    = base + '&choice=pay';
+      var assistUrl = base + '&choice=assist';
+      var donateUrl = base + '&choice=donate';
+      var btn = function (href, bg, label) {
+        return '<a href="' + href + '" style="display:inline-block;margin:6px 8px 6px 0;' +
+          'padding:12px 20px;background:' + bg + ';color:#fff;text-decoration:none;' +
+          'border-radius:5px;font-size:14px;font-family:Arial,sans-serif;">' + label + '</a>';
+      };
+      return '<hr style="border:none;border-top:1px solid #ddd;margin:28px 0 20px;">' +
+        '<h3 style="color:#333;margin-bottom:8px;">Payment Confirmation</h3>' +
+        '<p style="color:#555;font-size:14px;margin-bottom:16px;">' +
+        'Please indicate your payment situation by clicking one of the options below. ' +
+        'This will be recorded for the camp team.</p>' +
+        '<div>' +
+        btn(payUrl,    '#4a7c59', 'I am able to pay the camp fee') +
+        btn(assistUrl, '#c0703a', 'I will need assistance for payment') +
+        btn(donateUrl, '#3a6a9c', 'I can pay and I\'d like to donate more') +
+        '</div>' +
+        '<p style="color:#999;font-size:12px;margin-top:12px;">' +
+        'If you already selected your payment option in the registration form, ' +
+        'you do not need to click again.</p>';
+    })() : '') +
+
     // Contacts
-    '<p style="color:#5a3010;font-size:14px;line-height:1.8;">' +
-    'If you have any questions, please don\'t hesitate to reach out:<br>' +
-    '\uD83D\uDCB0 <strong>Finance queries:</strong> Salote \u2013 ' +
-    '<a href="mailto:salotesoroaqali@gmail.com" style="color:#8B4513;">' +
-    'salotesoroaqali@gmail.com</a><br>' +
-    '\uD83C\uDFD5\uFE0F <strong>Camp logistics:</strong> Laisane \u2013 ' +
-    '<a href="mailto:l.tubuna@gmail.com" style="color:#8B4513;">' +
+    '<p style="color:#333;font-size:14px;line-height:1.8;margin-top:24px;">' +
+    'For any questions, please contact:<br>' +
+    '<strong>Finance:</strong> Salote \u2013 ' +
+    '<a href="mailto:finance@advancedbreakthroughcentre.org" style="color:#555;">' +
+    'finance@advancedbreakthroughcentre.org</a><br>' +
+    '<strong>Camp logistics:</strong> Laisane \u2013 ' +
+    '<a href="mailto:l.tubuna@gmail.com" style="color:#555;">' +
     'l.tubuna@gmail.com</a></p>' +
 
-    '<p style="color:#5a3010;font-size:15px;line-height:1.7;margin-top:24px;">' +
-    'We cannot wait to see your family at camp. God bless! \uD83C\uDF1F</p>' +
-
-    '<p style="color:#8B4513;font-size:14px;font-style:italic;">' +
-    'Warm regards,<br><strong>ABC Ministry Team</strong><br>' +
+    '<p style="color:#333;font-size:14px;">' +
+    'Regards,<br><strong>ABC Youth Camp Team</strong><br>' +
     '2026 ABC Youth Camp</p>' +
 
     '</div>' + // end body div
@@ -697,28 +682,19 @@ function td(header, value) {
 }
 
 // ── Plain-text fallback ───────────────────────────────────────────────────────
-function buildConfirmationText_(guardianName, campers, feePerCamper, totalFee) {
+function buildConfirmationText_(guardianName, guardianEmail, campers) {
   var lines = [
     'Dear ' + guardianName + ',',
     '',
-    'Thank you for registering for the 2026 ABC Youth Camp!',
-    'We are so excited to have your camper(s) join us.',
+    'Thank you for registering for the 2026 ABC Youth Camp.',
+    'Below is a summary of the camper(s) you have submitted.',
     '',
-    'FEE SUMMARY',
-    '-----------'
+    'Registration fee : FJD $70.00 per camper (in-person) / FJD $40.00 per camper (online)',
+    'Campers registered : ' + campers.length,
+    '',
+    'REGISTRATION SUMMARY',
+    '--------------------'
   ];
-
-  campers.forEach(function (c) {
-    lines.push('  Camper ' + c.number + ': ' + c.name + '  –  FJD $' + feePerCamper + '.00');
-  });
-  lines.push(
-    '  ' + '─'.repeat(38),
-    '  Total (' + campers.length + ' camper' + (campers.length === 1 ? '' : 's') +
-      ')  :  FJD $' + totalFee + '.00',
-    ''
-  );
-
-  lines.push('REGISTRATION SUMMARY', '--------------------');
 
   campers.forEach(function (c) {
     lines.push(
@@ -741,16 +717,173 @@ function buildConfirmationText_(guardianName, campers, feePerCamper, totalFee) {
     '  Registration Deadline : 19 April 2026',
     '  Payment Deadline      : 30 April 2026',
     '',
+    'PAYMENT CONFIRMATION',
+    'Please click one of the links below to indicate your payment situation:',
+    ''
+  );
+
+  if (WEBAPP_URL) {
+    var enc  = encodeURIComponent;
+    var base = WEBAPP_URL + '?name=' + enc(guardianName) + '&email=' + enc(guardianEmail);
+    lines.push(
+      '  Option 1 – I am able to pay the camp fee:',
+      '  ' + base + '&choice=pay',
+      '',
+      '  Option 2 – I will need assistance for payment:',
+      '  ' + base + '&choice=assist',
+      '',
+      '  Option 3 – I can pay and I\'d like to donate more:',
+      '  ' + base + '&choice=donate',
+      ''
+    );
+  } else {
+    lines.push('  (Payment links will appear here once the web app is deployed.)', '');
+  }
+
+  lines.push(
     'CONTACTS',
-    '  Finance queries : Salote  - salotesoroaqali@gmail.com',
+    '  Finance queries : Salote  - finance@advancedbreakthroughcentre.org',
     '  Camp logistics  : Laisane - l.tubuna@gmail.com',
     '',
-    'We cannot wait to see your family at camp. God bless!',
-    '',
-    'Warm regards,',
-    'ABC Ministry Team',
+    'Regards,',
+    'ABC Youth Camp Team',
     '2026 ABC Youth Camp'
   );
 
   return lines.join('\n');
+}
+
+// =============================================================================
+// PAYMENT CONFIRMATION WEB APP
+// =============================================================================
+// HOW TO DEPLOY:
+//   1. In the Apps Script editor, click Deploy → New deployment.
+//   2. Type: Web app.
+//   3. Execute as: Me.
+//   4. Who has access: Anyone.
+//   5. Click Deploy and copy the URL shown.
+//   6. Paste that URL into the WEBAPP_URL constant at the top of this file.
+//   7. Re-run updateYouthCampForm() (only needed to update any form items;
+//      the email will immediately start using the new URL).
+//
+// HOW IT WORKS:
+//   Each confirmation email contains three buttons:
+//     • "I am able to pay"       → records choice instantly, shows thank-you page
+//     • "Need assistance"        → records choice instantly, shows thank-you page
+//     • "Can pay + donate more"  → opens a page asking for the donation amount;
+//                                   submitting THAT page records choice + amount
+//   All responses are written to a "Payment Confirmations" tab in the Google
+//   Sheet that is already linked to the registration form.
+// =============================================================================
+
+/**
+ * Handles GET requests (pay / assist choices, and the donate amount page).
+ */
+function doGet(e) {
+  var name   = (e.parameter.name   || '').replace(/</g, '&lt;');
+  var email  = e.parameter.email   || '';
+  var choice = e.parameter.choice  || '';
+
+  if (choice === 'pay' || choice === 'assist') {
+    recordPaymentChoice_(name, email, choice, '');
+    return HtmlService.createHtmlOutput(buildThankYouPage_(choice))
+      .setTitle('2026 ABC Youth Camp');
+  }
+  if (choice === 'donate') {
+    return HtmlService.createHtmlOutput(buildDonationPage_(name, email))
+      .setTitle('2026 ABC Youth Camp');
+  }
+  return HtmlService.createHtmlOutput('<p>Invalid request.</p>')
+    .setTitle('2026 ABC Youth Camp');
+}
+
+/**
+ * Handles POST requests (donation amount form submission).
+ */
+function doPost(e) {
+  var name   = (e.parameter.name   || '').replace(/</g, '&lt;');
+  var email  = e.parameter.email   || '';
+  var amount = e.parameter.amount  || '';
+  recordPaymentChoice_(name, email, 'donate', amount);
+  return HtmlService.createHtmlOutput(buildThankYouPage_('donate'))
+    .setTitle('2026 ABC Youth Camp');
+}
+
+/**
+ * Writes a payment choice to the "Payment Confirmations" tab
+ * of the Google Sheet linked to the registration form.
+ */
+function recordPaymentChoice_(name, email, choice, amount) {
+  try {
+    var destId = FormApp.openById(FORM_ID).getDestinationId();
+    if (!destId) {
+      Logger.log('recordPaymentChoice_: no linked spreadsheet found.');
+      return;
+    }
+    var ss    = SpreadsheetApp.openById(destId);
+    var sheet = ss.getSheetByName('Payment Confirmations');
+    if (!sheet) {
+      sheet = ss.insertSheet('Payment Confirmations');
+      sheet.appendRow(['Timestamp', 'Name', 'Email', 'Payment Choice', 'Donation Amount (FJD)']);
+      sheet.setFrozenRows(1);
+      sheet.getRange(1, 1, 1, 5).setFontWeight('bold');
+    }
+    var label = choice === 'pay'    ? 'I am able to pay the camp fee.' :
+                choice === 'assist' ? 'I will need assistance for payment.' :
+                                     'I can pay and I am willing to donate more.';
+    sheet.appendRow([new Date(), name, email, label, amount || '']);
+  } catch (err) {
+    Logger.log('recordPaymentChoice_ error: ' + err.message);
+  }
+}
+
+/** Page asking for the donation amount (shown only for the "donate" choice). */
+function buildDonationPage_(name, email) {
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<style>' +
+    'body{font-family:Arial,sans-serif;max-width:480px;margin:48px auto;padding:0 20px;color:#333;}' +
+    'h2{color:#444;margin-bottom:4px;}' +
+    '.card{background:#f9f9f9;border:1px solid #ddd;border-radius:6px;padding:24px 28px;margin-top:20px;}' +
+    'label{display:block;font-size:14px;font-weight:bold;margin-bottom:6px;}' +
+    'input[type=text]{width:100%;padding:10px;font-size:16px;border:1px solid #ccc;' +
+    'border-radius:4px;box-sizing:border-box;}' +
+    'button{margin-top:18px;background:#3a6a9c;color:#fff;border:none;padding:12px 28px;' +
+    'font-size:15px;border-radius:4px;cursor:pointer;width:100%;}' +
+    'button:hover{background:#2f5680;}' +
+    '.note{font-size:13px;color:#888;margin-top:10px;}' +
+    '</style></head><body>' +
+    '<h2>2026 ABC Youth Camp</h2>' +
+    '<p>Thank you, <strong>' + name + '</strong>.</p>' +
+    '<div class="card">' +
+    '<p style="margin-top:0;"><strong>Selected:</strong> I can pay the camp fee and I\'d like to donate more.</p>' +
+    '<label for="amount">Donation amount (FJD):</label>' +
+    '<form method="POST">' +
+    '<input type="hidden" name="name" value="' + name + '">' +
+    '<input type="hidden" name="email" value="' + email + '">' +
+    '<input type="text" id="amount" name="amount" placeholder="e.g. 50" required>' +
+    '<button type="submit">Submit</button>' +
+    '</form>' +
+    '<p class="note">Donations go towards supporting families who need financial assistance to attend camp.</p>' +
+    '</div></body></html>';
+}
+
+/** Simple thank-you page shown after a choice is recorded. */
+function buildThankYouPage_(choice) {
+  var label = choice === 'pay'    ? 'I am able to pay the camp fee.' :
+              choice === 'assist' ? 'I will need assistance for payment.' :
+                                   'I can pay and I am willing to donate more.';
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<style>' +
+    'body{font-family:Arial,sans-serif;max-width:480px;margin:48px auto;padding:0 20px;color:#333;}' +
+    'h2{color:#444;}' +
+    '.card{background:#f0f7f2;border:1px solid #b2d8bc;border-radius:6px;padding:24px 28px;margin-top:20px;}' +
+    '</style></head><body>' +
+    '<h2>2026 ABC Youth Camp</h2>' +
+    '<div class="card">' +
+    '<p style="margin-top:0;"><strong>Response recorded.</strong></p>' +
+    '<p>Your selection: ' + label + '</p>' +
+    '<p style="margin-bottom:0;">The camp team will be in touch. Thank you.</p>' +
+    '</div></body></html>';
 }
