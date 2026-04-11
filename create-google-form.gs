@@ -55,9 +55,11 @@ function updateYouthCampForm() {
   var form = FormApp.openById(FORM_ID);
 
   // ── 1. Clear existing items ──────────────────────────────────────────────
-  // Fetch the list ONCE, then delete from the end so indices stay stable.
+  // Fetch the list ONCE, then delete forward (0 → N).
+  // Forward order is required: navigation choices point to later page breaks,
+  // so deleting items BEFORE their targets avoids "Invalid data updating form".
   var existing = form.getItems();
-  for (var di = existing.length - 1; di >= 0; di--) {
+  for (var di = 0; di < existing.length; di++) {
     form.deleteItem(existing[di]);
   }
 
