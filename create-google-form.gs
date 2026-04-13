@@ -872,36 +872,6 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     '<p style="font-size:12px;color:#888;margin-bottom:20px;">' +
     'Camper: FJD $70.00 &nbsp;|&nbsp; Youth Coordinator: FJD $100.00</p>' +
 
-    // Camper details table header
-    '<h3 style="color:#333;border-bottom:2px solid #ccc;padding-bottom:6px;' +
-    'margin:20px 0 12px;">Camper Details</h3>' +
-
-    // Table
-    '<div style="overflow-x:auto;margin:0 0 24px;">' +
-    '<table style="width:100%;border-collapse:collapse;font-size:13px;' +
-    'box-shadow:0 2px 8px rgba(0,0,0,.12);">' +
-    '<thead>' +
-    '<tr style="background:#8B4513;color:#fff;">' +
-    '<th style="padding:10px 8px;">#</th>' +
-    '<th style="padding:10px 8px;">Name</th>' +
-    '<th style="padding:10px 8px;">Date of Birth</th>' +
-    '<th style="padding:10px 8px;">Location</th>' +
-    "<th style=\"padding:10px 8px;\">People's Group</th>" +
-    '<th style="padding:10px 8px;">Education / Employment</th>' +
-    '<th style="padding:10px 8px;">Medical?</th>' +
-    '<th style="padding:10px 8px;">Allergies?</th>' +
-    '<th style="padding:10px 8px;">Dietary?</th>' +
-    '<th style="padding:10px 8px;">Transport</th>' +
-    '</tr>' +
-    '</thead><tbody>' + rows + '</tbody></table></div>' +
-
-    // Deadlines reminder
-    '<div style="background:#fff8ec;border-left:4px solid #DAA520;' +
-    'padding:16px 20px;border-radius:4px;margin:20px 0;">' +
-    '<p style="margin:0;color:#7a4f00;font-size:14px;">' +
-    '\uD83D\uDCC5 <strong>Registration Deadline:</strong> 19 April 2026<br>' +
-    '\uD83D\uDCB3 <strong>Payment Deadline:</strong> 30 April 2026</p></div>' +
-
     // Payment confirmation buttons (only shown if WEBAPP_URL is configured)
     (WEBAPP_URL ? (function () {
       var enc       = encodeURIComponent;
@@ -948,6 +918,36 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     'Once payment is made, please send the transfer receipt to ' +
     '<a href="mailto:finance@advancedbreakthroughcentre.org" style="color:#555;">' +
     'finance@advancedbreakthroughcentre.org</a>.</p>' +
+
+    // Camper details table header
+    '<h3 style="color:#333;border-bottom:2px solid #ccc;padding-bottom:6px;' +
+    'margin:20px 0 12px;">Camper Details</h3>' +
+
+    // Table
+    '<div style="overflow-x:auto;margin:0 0 24px;">' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;' +
+    'box-shadow:0 2px 8px rgba(0,0,0,.12);">' +
+    '<thead>' +
+    '<tr style="background:#8B4513;color:#fff;">' +
+    '<th style="padding:10px 8px;">#</th>' +
+    '<th style="padding:10px 8px;">Name</th>' +
+    '<th style="padding:10px 8px;">Date of Birth</th>' +
+    '<th style="padding:10px 8px;">Location</th>' +
+    "<th style=\"padding:10px 8px;\">People's Group</th>" +
+    '<th style="padding:10px 8px;">Education / Employment</th>' +
+    '<th style="padding:10px 8px;">Medical?</th>' +
+    '<th style="padding:10px 8px;">Allergies?</th>' +
+    '<th style="padding:10px 8px;">Dietary?</th>' +
+    '<th style="padding:10px 8px;">Transport</th>' +
+    '</tr>' +
+    '</thead><tbody>' + rows + '</tbody></table></div>' +
+
+    // Deadlines reminder
+    '<div style="background:#fff8ec;border-left:4px solid #DAA520;' +
+    'padding:16px 20px;border-radius:4px;margin:20px 0;">' +
+    '<p style="margin:0;color:#7a4f00;font-size:14px;">' +
+    '\uD83D\uDCC5 <strong>Registration Deadline:</strong> 19 April 2026<br>' +
+    '\uD83D\uDCB3 <strong>Payment Deadline:</strong> 30 April 2026</p></div>' +
 
     // Contacts
     '<p style="color:#333;font-size:14px;line-height:1.8;margin-top:24px;">' +
@@ -996,29 +996,7 @@ function buildConfirmationText_(guardianName, guardianEmail, campers, totalFee) 
     ''
   );
 
-  lines.push('REGISTRATION SUMMARY', '--------------------');
-
-  campers.forEach(function (c) {
-    lines.push(
-      '',
-      'Camper ' + c.number + ': ' + c.name,
-      '  Date of Birth     : ' + (c.dob       || 'N/A'),
-      '  Location          : ' + (c.location  || 'N/A'),
-      "  People's Group    : " + (c.pg        || 'N/A'),
-      '  Education Status  : ' + (c.edu       || 'N/A'),
-      '  Medical Condition : ' + (c.medical   || 'N/A'),
-      '  Allergies         : ' + (c.allergies || 'N/A'),
-      '  Dietary Req.      : ' + (c.dietary   || 'N/A'),
-      '  Transport         : ' + (c.transport || 'N/A')
-    );
-  });
-
   lines.push(
-    '',
-    'IMPORTANT DEADLINES',
-    '  Registration Deadline : 19 April 2026',
-    '  Payment Deadline      : 30 April 2026',
-    '',
     'PAYMENT CONFIRMATION',
     'Please click one of the links below to indicate your payment situation:',
     ''
@@ -1059,6 +1037,31 @@ function buildConfirmationText_(guardianName, guardianEmail, campers, totalFee) 
     '',
     'Once payment is made, please send the receipt to:',
     '  finance@advancedbreakthroughcentre.org',
+    ''
+  );
+
+  lines.push('REGISTRATION SUMMARY', '--------------------');
+
+  campers.forEach(function (c) {
+    lines.push(
+      '',
+      'Camper ' + c.number + ': ' + c.name,
+      '  Date of Birth     : ' + (c.dob       || 'N/A'),
+      '  Location          : ' + (c.location  || 'N/A'),
+      "  People's Group    : " + (c.pg        || 'N/A'),
+      '  Education Status  : ' + (c.edu       || 'N/A'),
+      '  Medical Condition : ' + (c.medical   || 'N/A'),
+      '  Allergies         : ' + (c.allergies || 'N/A'),
+      '  Dietary Req.      : ' + (c.dietary   || 'N/A'),
+      '  Transport         : ' + (c.transport || 'N/A')
+    );
+  });
+
+  lines.push(
+    '',
+    'IMPORTANT DEADLINES',
+    '  Registration Deadline : 19 April 2026',
+    '  Payment Deadline      : 30 April 2026',
     '',
     'CONTACTS',
     '  Finance queries : Salote  - finance@advancedbreakthroughcentre.org',
