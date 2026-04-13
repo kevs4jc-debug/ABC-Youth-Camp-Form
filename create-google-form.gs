@@ -672,9 +672,9 @@ function updateYouthCampForm_Step2() {
     .setHelpText(
       'The registration fees for the 2026 ABC Youth Camp are as follows:\n\n' +
       '  \u2022 FJD $70.00 per camper\n' +
-      '  \u2022 FJD $40.00 per camper if attending online\n\n' +
+      '  \u2022 FJD $100.00 per Youth Coordinator\n\n' +
       'Your total will be based on the number of campers you have registered ' +
-      'and whether the camper attends in person or online.\n\n' +
+      'and whether the camper is a Youth Coordinator.\n\n' +
       'Deadline to pay camp fees : 30 April 2026'
     );
 
@@ -795,20 +795,22 @@ function onFormSubmit(e) {
       var lbl = 'Camper ' + n;
       var name = responses[lbl + "'s Full Name"];
       if (!name) continue; // skip if section was left blank
+      var isCoordinator = (responses['Is ' + lbl + ', a Youth Coordinator?'] || '').toLowerCase() === 'yes';
       var transport = responses["How will " + lbl + " be travelling to the camp-site?"] || '';
       campers.push({
-        number:    n,
-        name:      name,
-        fee:       transport === 'Virtual Attendance (Online)' ? 40 : 70,
-        dob:       responses[lbl + "'s Date of Birth"]                                          || '',
-        location:  responses['Location of ' + lbl]                                              || '',
-        pg:        responses["What is " + lbl + "'s People's Group?"]                          || '',
-        edu:       responses["What is " + lbl + "'s current education or employment status?"] || '',
-        medical:   responses["Does " + lbl + " have any current medical condition?"]           || '',
-        allergies: responses["Is " + lbl + " allergic to anything?"]                           || '',
-        dietary:   responses["Does " + lbl + " have any dietary requirements?"]               || '',
-        transport: transport,
-        goals:     responses["What are " + lbl + "'s expectations or goals for this camp?"]   || ''
+        number:      n,
+        name:        name,
+        coordinator: isCoordinator,
+        fee:         isCoordinator ? 100 : 70,
+        dob:         responses[lbl + "'s Date of Birth"]                                          || '',
+        location:    responses['Location of ' + lbl]                                              || '',
+        pg:          responses["What is " + lbl + "'s People's Group?"]                          || '',
+        edu:         responses["What is " + lbl + "'s current education or employment status?"] || '',
+        medical:     responses["Does " + lbl + " have any current medical condition?"]           || '',
+        allergies:   responses["Is " + lbl + " allergic to anything?"]                           || '',
+        dietary:     responses["Does " + lbl + " have any dietary requirements?"]               || '',
+        transport:   transport,
+        goals:       responses["What are " + lbl + "'s expectations or goals for this camp?"]   || ''
       });
     }
 
@@ -833,12 +835,12 @@ function onFormSubmit(e) {
 function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) {
   // Fee summary rows – one per camper
   var feeRows = campers.map(function (c) {
-    var attendance = c.transport === 'Virtual Attendance (Online)' ? 'Online' : 'In-Person';
+    var type = c.coordinator ? 'Youth Coordinator' : 'Camper';
     var bg = c.number % 2 === 0 ? '#f9f5ee' : '#ffffff';
     return '<tr style="background:' + bg + '">' +
       '<td style="padding:8px 10px;border:1px solid #ddd;color:#333;">' + c.number + '</td>' +
       '<td style="padding:8px 10px;border:1px solid #ddd;color:#333;">' + c.name + '</td>' +
-      '<td style="padding:8px 10px;border:1px solid #ddd;color:#333;">' + attendance + '</td>' +
+      '<td style="padding:8px 10px;border:1px solid #ddd;color:#333;">' + type + '</td>' +
       '<td style="padding:8px 10px;border:1px solid #ddd;color:#333;text-align:right;">FJD $' + c.fee + '.00</td>' +
       '</tr>';
   }).join('');
@@ -888,7 +890,7 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     '<thead><tr style="background:#555;color:#fff;">' +
     '<th style="padding:10px;text-align:left;">#</th>' +
     '<th style="padding:10px;text-align:left;">Camper Name</th>' +
-    '<th style="padding:10px;text-align:left;">Attendance</th>' +
+    '<th style="padding:10px;text-align:left;">Type</th>' +
     '<th style="padding:10px;text-align:right;">Fee (FJD)</th>' +
     '</tr></thead>' +
     '<tbody>' + feeRows + '</tbody>' +
@@ -899,7 +901,7 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     'FJD $' + totalFee + '.00</td>' +
     '</tr></tfoot></table></div>' +
     '<p style="font-size:12px;color:#888;margin-bottom:20px;">' +
-    'In-Person: FJD $70.00 per camper &nbsp;|&nbsp; Online: FJD $40.00 per camper</p>' +
+    'Camper: FJD $70.00 &nbsp;|&nbsp; Youth Coordinator: FJD $100.00</p>' +
 
     // Camper details table header
     '<h3 style="color:#333;border-bottom:2px solid #ccc;padding-bottom:6px;' +
@@ -994,9 +996,9 @@ function buildConfirmationText_(guardianName, guardianEmail, campers, totalFee) 
   ];
 
   campers.forEach(function (c) {
-    var attendance = c.transport === 'Virtual Attendance (Online)' ? 'Online' : 'In-Person';
+    var type = c.coordinator ? 'Youth Coordinator' : 'Camper';
     lines.push('  Camper ' + c.number + ': ' + c.name +
-      '  (' + attendance + ')  –  FJD $' + c.fee + '.00');
+      '  (' + type + ')  –  FJD $' + c.fee + '.00');
   });
   lines.push(
     '  ' + Array(42).join('-'),
