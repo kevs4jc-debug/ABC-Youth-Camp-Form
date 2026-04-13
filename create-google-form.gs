@@ -1099,7 +1099,7 @@ function doGet(e) {
 
   if (choice === 'pay' || choice === 'assist') {
     recordPaymentChoice_(name, email, choice, '');
-    return HtmlService.createHtmlOutput(buildThankYouPage_(choice))
+    return HtmlService.createHtmlOutput(buildThankYouPage_(choice, name))
       .setTitle('2026 ABC Youth Camp');
   }
   if (choice === 'donate') {
@@ -1118,7 +1118,7 @@ function doPost(e) {
   var email  = e.parameter.email   || '';
   var amount = e.parameter.amount  || '';
   recordPaymentChoice_(name, email, 'donate', amount);
-  return HtmlService.createHtmlOutput(buildThankYouPage_('donate'))
+  return HtmlService.createHtmlOutput(buildThankYouPage_('donate', name))
     .setTitle('2026 ABC Youth Camp');
 }
 
@@ -1181,7 +1181,8 @@ function buildDonationPage_(name, email) {
 }
 
 /** Thank-you page shown after a payment choice or donation is recorded. */
-function buildThankYouPage_(choice) {
+function buildThankYouPage_(choice, fullName) {
+  var firstName = (fullName || '').split(' ')[0] || 'there';
   var css = 'body{font-family:Arial,sans-serif;max-width:480px;margin:48px auto;' +
     'padding:0 20px;color:#333;}h2{color:#444;}' +
     '.card{border-radius:6px;padding:24px 28px;margin-top:20px;}';
@@ -1194,7 +1195,7 @@ function buildThankYouPage_(choice) {
       '</style></head><body>' +
       '<h2>2026 ABC Youth Camp</h2>' +
       '<div class="card">' +
-      '<p style="margin-top:0;font-size:18px;">Thank you for your generosity!</p>' +
+      '<p style="margin-top:0;font-size:18px;"><strong>Thank you, ' + firstName + '!</strong></p>' +
       '<p>Your donation amount has been recorded. The camp team truly appreciates ' +
       'your willingness to go above and beyond.</p>' +
       '<p style="margin-bottom:0;">We will be in touch with further details. ' +
@@ -1213,8 +1214,8 @@ function buildThankYouPage_(choice) {
     '</style></head><body>' +
     '<h2>2026 ABC Youth Camp</h2>' +
     '<div class="card">' +
-    '<p style="margin-top:0;"><strong>Response recorded.</strong></p>' +
-    '<p>Your selection: ' + label + '</p>' +
-    '<p style="margin-bottom:0;">The camp team will be in touch. Thank you.</p>' +
+    '<p style="margin-top:0;font-size:18px;"><strong>Thank you, ' + firstName + '!</strong></p>' +
+    '<p>Your selection has been recorded: <em>' + label + '</em></p>' +
+    '<p style="margin-bottom:0;">The camp team will be in touch. We look forward to seeing you at camp.</p>' +
     '</div></body></html>';
 }
