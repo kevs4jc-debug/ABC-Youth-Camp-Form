@@ -830,19 +830,50 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     '</tr>';
   }).join('');
 
-  return '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body ' +
-    'style="margin:0;padding:0;background:#f4f0e8;font-family:Georgia,serif;">' +
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<style>' +
+    // ── Mobile responsive overrides (applied where <style> is supported) ─────
+    '@media screen and (max-width:600px){' +
+    // Header
+    '.hdr{padding:22px 16px !important;}' +
+    '.hdr h1{font-size:19px !important;}' +
+    '.hdr p{font-size:13px !important;}' +
+    // Body wrapper
+    '.bwrap{padding:18px 12px !important;}' +
+    // Fee table: shrink padding & font
+    '.ftbl th,.ftbl td{padding:7px 5px !important;font-size:12px !important;}' +
+    // Payment buttons: stack full-width
+    '.btnwrap a{display:block !important;width:100% !important;' +
+    'margin:6px 0 !important;text-align:center !important;' +
+    'box-sizing:border-box !important;}' +
+    // Camper details: flip to stacked card layout
+    '.ctbl thead{display:none !important;}' +
+    '.ctbl tr{display:block !important;border:1px solid #e0d5c0 !important;' +
+    'margin-bottom:14px !important;border-radius:6px !important;overflow:hidden !important;}' +
+    '.ctbl td{display:block !important;border:none !important;' +
+    'border-bottom:1px solid #f0e8d8 !important;padding:9px 13px !important;' +
+    'font-size:13px !important;}' +
+    '.ctbl td:last-child{border-bottom:none !important;}' +
+    '.ctbl td:before{content:attr(data-label);display:block;font-weight:bold;' +
+    'color:#8B4513;font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}' +
+    // Payment instructions bank table
+    '.bktbl td{display:block !important;padding:2px 0 !important;}' +
+    '}' +
+    '</style>' +
+    '</head>' +
+    '<body style="margin:0;padding:0;background:#f4f0e8;font-family:Georgia,serif;">' +
 
     // Header banner
-    '<div style="background:linear-gradient(135deg,#8B4513,#D2691E,#DAA520);' +
+    '<div class="hdr" style="background:linear-gradient(135deg,#8B4513,#D2691E,#DAA520);' +
     'padding:36px 32px;text-align:center;">' +
     '<h1 style="color:#fff;margin:0;font-size:26px;letter-spacing:1px;">' +
     '\uD83C\uDFD5\uFE0F 2026 ABC Youth Camp</h1>' +
     '<p style="color:#ffe4b5;margin:8px 0 0;font-size:15px;">Registration Confirmation</p>' +
     '</div>' +
 
-    // Body
-    '<div style="max-width:700px;margin:0 auto;padding:32px 24px;">' +
+    // Body wrapper
+    '<div class="bwrap" style="max-width:700px;margin:0 auto;padding:32px 24px;">' +
 
     '<p style="font-size:16px;color:#333;">Dear <strong>' + guardianName + '</strong>,</p>' +
 
@@ -855,7 +886,7 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     '<h3 style="color:#333;border-bottom:2px solid #ccc;padding-bottom:6px;' +
     'margin:20px 0 12px;">Registration Fees</h3>' +
     '<div style="overflow-x:auto;margin-bottom:8px;">' +
-    '<table style="width:100%;max-width:520px;border-collapse:collapse;font-size:14px;">' +
+    '<table class="ftbl" style="width:100%;max-width:520px;border-collapse:collapse;font-size:14px;">' +
     '<thead><tr style="background:#555;color:#fff;">' +
     '<th style="padding:10px;text-align:left;">#</th>' +
     '<th style="padding:10px;text-align:left;">Camper Name</th>' +
@@ -889,7 +920,7 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
         '<p style="color:#555;font-size:14px;margin-bottom:16px;">' +
         'Please indicate your payment situation by clicking one of the options below. ' +
         'This will be recorded for the camp team.</p>' +
-        '<div>' +
+        '<div class="btnwrap">' +
         btn(payUrl,    '#4a7c59', 'I am able to pay the camp fee') +
         btn(assistUrl, '#c0703a', 'I will need assistance for payment') +
         btn(donateUrl, '#3a6a9c', 'I can pay and I\'d like to donate more') +
@@ -903,12 +934,12 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     '<h3 style="color:#333;margin-bottom:8px;">Payment Instructions</h3>' +
     '<p style="color:#555;font-size:14px;margin:0 0 12px;">' +
     'You may pay the camp fees directly to ABC\u2019s BSP, Westpac, or MPAISA accounts:</p>' +
-    '<table style="font-size:13px;color:#3a2000;border-collapse:collapse;margin-bottom:12px;">' +
-    '<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">BSP</td>' +
+    '<table class="bktbl" style="font-size:13px;color:#3a2000;border-collapse:collapse;margin-bottom:12px;">' +
+    '<tr><td style="padding:4px 12px 4px 0;font-weight:bold;white-space:nowrap;">BSP</td>' +
     '<td style="padding:4px 0;">A/c&nbsp;# 3178242 &nbsp;&mdash;&nbsp; Advanced Breakthrough Centre</td></tr>' +
-    '<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Westpac</td>' +
+    '<tr><td style="padding:4px 12px 4px 0;font-weight:bold;white-space:nowrap;">Westpac</td>' +
     '<td style="padding:4px 0;">A/c&nbsp;# 9803986679 &nbsp;&mdash;&nbsp; Advanced Breakthrough Centre</td></tr>' +
-    '<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">MPAISA</td>' +
+    '<tr><td style="padding:4px 12px 4px 0;font-weight:bold;white-space:nowrap;">MPAISA</td>' +
     '<td style="padding:4px 0;">Merchant Name: Advanced Breakthrough Centre</td></tr>' +
     '</table>' +
     '<p style="color:#555;font-size:14px;margin:0 0 6px;">' +
@@ -919,13 +950,11 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     '<a href="mailto:finance@advancedbreakthroughcentre.org" style="color:#555;">' +
     'finance@advancedbreakthroughcentre.org</a>.</p>' +
 
-    // Camper details table header
+    // Camper details — 10-column table; on mobile flips to stacked cards via CSS
     '<h3 style="color:#333;border-bottom:2px solid #ccc;padding-bottom:6px;' +
     'margin:20px 0 12px;">Camper Details</h3>' +
-
-    // Table
     '<div style="overflow-x:auto;margin:0 0 24px;">' +
-    '<table style="width:100%;border-collapse:collapse;font-size:13px;' +
+    '<table class="ctbl" style="width:100%;border-collapse:collapse;font-size:13px;' +
     'box-shadow:0 2px 8px rgba(0,0,0,.12);">' +
     '<thead>' +
     '<tr style="background:#8B4513;color:#fff;">' +
@@ -963,13 +992,13 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     'Regards,<br><strong>ABC Youth Camp Team</strong><br>' +
     '2026 ABC Youth Camp</p>' +
 
-    '</div>' + // end body div
+    '</div>' + // end body wrapper
     '</body></html>';
 }
 
 function td(header, value) {
-  return '<td style="padding:8px;border:1px solid #e0d5c0;vertical-align:top;' +
-    'color:#3a2000;">' + (value || '\u2014') + '</td>';
+  return '<td data-label="' + header + '" style="padding:8px;border:1px solid #e0d5c0;' +
+    'vertical-align:top;color:#3a2000;">' + (value || '\u2014') + '</td>';
 }
 
 // ── Plain-text fallback ───────────────────────────────────────────────────────
