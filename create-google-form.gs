@@ -1161,70 +1161,138 @@ function recordPaymentChoice_(name, email, choice, amount) {
 
 /** Page asking for the donation amount (shown only for the "donate" choice). */
 function buildDonationPage_(name, email) {
-  return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
     '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<title>2026 ABC Youth Camp – Donation</title>' +
     '<style>' +
-    'body{font-family:Arial,sans-serif;max-width:480px;margin:48px auto;padding:0 20px;color:#333;}' +
-    'h2{color:#444;margin-bottom:4px;}' +
-    '.card{background:#f9f9f9;border:1px solid #ddd;border-radius:6px;padding:24px 28px;margin-top:20px;}' +
-    'label{display:block;font-size:14px;font-weight:bold;margin-bottom:6px;}' +
-    'input[type=text]{width:100%;padding:10px;font-size:16px;border:1px solid #ccc;' +
-    'border-radius:4px;box-sizing:border-box;}' +
-    'button{margin-top:18px;background:#3a6a9c;color:#fff;border:none;padding:12px 28px;' +
-    'font-size:15px;border-radius:4px;cursor:pointer;width:100%;}' +
-    'button:hover{background:#2f5680;}' +
-    '.note{font-size:13px;color:#888;margin-top:10px;}' +
+    '*{box-sizing:border-box;margin:0;padding:0;}' +
+    'body{font-family:Arial,sans-serif;' +
+    'background:linear-gradient(135deg,#5a2d0c 0%,#8B4513 55%,#DAA520 100%);' +
+    'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}' +
+    '.wrap{background:#fff;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.35);' +
+    'max-width:480px;width:100%;overflow:hidden;}' +
+    '.hdr{background:linear-gradient(135deg,#5a2d0c,#8B4513);' +
+    'padding:28px 32px;text-align:center;}' +
+    '.hdr .icon{font-size:36px;display:block;margin-bottom:8px;}' +
+    '.hdr h1{color:#fff;font-size:22px;margin-bottom:4px;}' +
+    '.hdr p{color:#ffe4b5;font-size:13px;}' +
+    '.bdy{padding:28px 32px;}' +
+    '.greet{font-size:15px;color:#333;margin-bottom:18px;}' +
+    '.badge{background:#fdf6ec;border-left:4px solid #DAA520;' +
+    'padding:12px 16px;border-radius:4px;margin-bottom:22px;' +
+    'font-size:13px;color:#5a3000;line-height:1.5;}' +
+    '.lbl{display:block;font-size:14px;color:#444;margin-bottom:10px;line-height:1.6;}' +
+    '.pfx{display:flex;align-items:center;border:2px solid #ccc;border-radius:6px;' +
+    'overflow:hidden;transition:border-color .2s;}' +
+    '.pfx:focus-within{border-color:#8B4513;}' +
+    '.pfx .sym{padding:0 12px;font-size:16px;font-weight:bold;color:#8B4513;' +
+    'background:#fdf6ec;border-right:2px solid #ccc;line-height:46px;}' +
+    '.pfx input{border:none;outline:none;width:100%;padding:12px 14px;font-size:16px;color:#333;}' +
+    'button{margin-top:22px;width:100%;' +
+    'background:linear-gradient(135deg,#4a7c59,#3a6448);' +
+    'color:#fff;border:none;padding:14px;font-size:15px;font-weight:bold;' +
+    'border-radius:6px;cursor:pointer;letter-spacing:.3px;}' +
+    'button:hover{opacity:.9;}' +
+    '.note{font-size:12px;color:#aaa;text-align:center;margin-top:14px;line-height:1.5;}' +
     '</style></head><body>' +
-    '<h2>2026 ABC Youth Camp</h2>' +
-    '<p>Thank you, <strong>' + name + '</strong>.</p>' +
-    '<div class="card">' +
-    '<p style="margin-top:0;"><strong>Selected:</strong> I can pay the camp fee and I\'d like to donate more.</p>' +
-    '<label for="amount">Donation amount (FJD):</label>' +
-    '<form method="POST">' +
+    '<div class="wrap">' +
+    '<div class="hdr"><span class="icon">&#x26FA;</span>' +
+    '<h1>2026 ABC Youth Camp</h1><p>Donation Contribution</p></div>' +
+    '<div class="bdy">' +
+    '<p class="greet">Thank you, <strong>' + name + '</strong>!</p>' +
+    '<div class="badge">You have selected:<br>' +
+    '<strong>I can pay the camp fee and I&rsquo;d like to donate more.</strong></div>' +
+    '<form method="POST" action="' + WEBAPP_URL + '">' +
     '<input type="hidden" name="name" value="' + name + '">' +
     '<input type="hidden" name="email" value="' + email + '">' +
-    '<input type="text" id="amount" name="amount" placeholder="e.g. 50" required>' +
-    '<button type="submit">Submit</button>' +
+    '<label class="lbl" for="amt">' +
+    'Please kindly state below the amount you are willing to donate ' +
+    'to assist in the running of the camp (in FJD):</label>' +
+    '<div class="pfx"><span class="sym">FJD&nbsp;$</span>' +
+    '<input type="text" id="amt" name="amount" placeholder="e.g. 50" required></div>' +
+    '<button type="submit">&#10003;&nbsp; Submit Donation</button>' +
     '</form>' +
-    '</div></body></html>';
+    '<p class="note">Your generosity helps make the camp possible for every participant.<br>' +
+    'Thank you for your kind support.</p>' +
+    '</div></div></body></html>';
 }
 
 /** Thank-you page shown after a payment choice or donation is recorded. */
 function buildThankYouPage_(choice, fullName) {
   var firstName = (fullName || '').split(' ')[0] || 'there';
-  var css = 'body{font-family:Arial,sans-serif;max-width:480px;margin:48px auto;' +
-    'padding:0 20px;color:#333;}h2{color:#444;}' +
-    '.card{border-radius:6px;padding:24px 28px;margin-top:20px;}';
+
+  var headerTitle, headerSub, cardBg, borderColor, icon, heading, body1, body2;
 
   if (choice === 'donate') {
-    return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
-      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
-      '<style>' + css +
-      '.card{background:#f0f7f2;border:1px solid #b2d8bc;}' +
-      '</style></head><body>' +
-      '<h2>2026 ABC Youth Camp</h2>' +
-      '<div class="card">' +
-      '<p style="margin-top:0;font-size:18px;"><strong>Thank you, ' + firstName + '!</strong></p>' +
-      '<p>Your donation amount has been recorded. The camp team truly appreciates ' +
-      'your willingness to go above and beyond.</p>' +
-      '<p style="margin-bottom:0;">We will be in touch with further details. ' +
-      'Thank you for supporting the 2026 ABC Youth Camp.</p>' +
-      '</div></body></html>';
+    headerTitle = 'Donation Received';
+    headerSub   = 'Thank you for your generosity!';
+    cardBg      = '#f0f7f2';
+    borderColor = '#4a7c59';
+    icon        = '&#x1F49A;'; // green heart
+    heading     = 'Thank you, ' + firstName + '!';
+    body1       = 'Your donation amount has been received and recorded. ' +
+                  'The camp team truly appreciates your willingness to go above and beyond ' +
+                  'for the 2026 ABC Youth Camp.';
+    body2       = 'We will be in touch with further details. ' +
+                  'God bless you for your generosity!';
+  } else if (choice === 'pay') {
+    headerTitle = 'Payment Confirmed';
+    headerSub   = 'Your response has been recorded.';
+    cardBg      = '#f0f7f2';
+    borderColor = '#4a7c59';
+    icon        = '&#x2705;'; // check mark
+    heading     = 'Thank you, ' + firstName + '!';
+    body1       = 'Your payment intention has been recorded: ' +
+                  '<em>I am able to pay the camp fee.</em>';
+    body2       = 'Please ensure your payment is made by <strong>30 April 2026</strong>. ' +
+                  'The camp team will be in touch with further details.';
+  } else {
+    headerTitle = 'Response Recorded';
+    headerSub   = 'We have noted your situation.';
+    cardBg      = '#fdf6ec';
+    borderColor = '#DAA520';
+    icon        = '&#x1F4AC;'; // speech bubble
+    heading     = 'Thank you, ' + firstName + '!';
+    body1       = 'Your response has been recorded: ' +
+                  '<em>I will need assistance for payment.</em>';
+    body2       = 'The camp team will reach out to you shortly to discuss further. ' +
+                  'Please do not hesitate to contact us at ' +
+                  '<a href="mailto:finance@advancedbreakthroughcentre.org" style="color:#8B4513;">' +
+                  'finance@advancedbreakthroughcentre.org</a>.';
   }
 
-  var label = choice === 'pay'
-    ? 'I am able to pay the camp fee.'
-    : 'I will need assistance for payment.';
-
-  return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
     '<meta name="viewport" content="width=device-width,initial-scale=1">' +
-    '<style>' + css +
-    '.card{background:#f0f7f2;border:1px solid #b2d8bc;}' +
+    '<title>2026 ABC Youth Camp</title>' +
+    '<style>' +
+    '*{box-sizing:border-box;margin:0;padding:0;}' +
+    'body{font-family:Arial,sans-serif;' +
+    'background:linear-gradient(135deg,#5a2d0c 0%,#8B4513 55%,#DAA520 100%);' +
+    'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}' +
+    '.wrap{background:#fff;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.35);' +
+    'max-width:460px;width:100%;overflow:hidden;}' +
+    '.hdr{background:linear-gradient(135deg,#5a2d0c,#8B4513);' +
+    'padding:28px 32px;text-align:center;}' +
+    '.hdr .icon{font-size:40px;display:block;margin-bottom:8px;}' +
+    '.hdr h1{color:#fff;font-size:20px;margin-bottom:4px;}' +
+    '.hdr p{color:#ffe4b5;font-size:13px;}' +
+    '.bdy{padding:28px 32px;}' +
+    '.card{background:' + cardBg + ';border-left:4px solid ' + borderColor + ';' +
+    'border-radius:6px;padding:20px 22px;}' +
+    '.card h2{font-size:20px;color:#333;margin-bottom:14px;}' +
+    '.card p{font-size:14px;color:#444;line-height:1.7;margin-bottom:10px;}' +
+    '.card p:last-child{margin-bottom:0;}' +
+    '.footer{text-align:center;padding:16px 32px 24px;' +
+    'font-size:12px;color:#aaa;line-height:1.5;}' +
     '</style></head><body>' +
-    '<h2>2026 ABC Youth Camp</h2>' +
-    '<div class="card">' +
-    '<p style="margin-top:0;font-size:18px;"><strong>Thank you, ' + firstName + '!</strong></p>' +
-    '<p>Your selection has been recorded: <em>' + label + '</em></p>' +
-    '<p style="margin-bottom:0;">The camp team will be in touch. We look forward to seeing you at camp.</p>' +
+    '<div class="wrap">' +
+    '<div class="hdr"><span class="icon">' + icon + '</span>' +
+    '<h1>' + headerTitle + '</h1><p>' + headerSub + '</p></div>' +
+    '<div class="bdy"><div class="card">' +
+    '<h2>' + heading + '</h2>' +
+    '<p>' + body1 + '</p>' +
+    '<p>' + body2 + '</p>' +
+    '</div></div>' +
+    '<div class="footer">2026 ABC Youth Camp &mdash; Advanced Breakthrough Centre</div>' +
     '</div></body></html>';
 }
