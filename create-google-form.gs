@@ -694,36 +694,6 @@ function updateYouthCampForm_Step2() {
       'finance@advancedbreakthroughcentre.org'
     );
 
-  var paymentQ = form.addMultipleChoiceItem()
-    .setTitle('Please select one of the options below that best describes your situation.')
-    .setRequired(true);
-  // Choices set below once donationPage exists.
-
-  // Donation branch (only reached via the donate choice — no assistance page).
-  var donationPage = form.addPageBreakItem()
-    .setTitle('Donation');
-
-  form.addTextItem()
-    .setTitle('How much are you willing to donate to assist in the running of the camp?')
-    .setHelpText('Enter the amount in FJD (Fijian Dollars).')
-    .setRequired(true);
-
-  // Payment branching choices.
-  paymentQ.setChoices([
-    paymentQ.createChoice(
-      'I am able to pay the camp fee.',
-      FormApp.PageNavigationType.SUBMIT
-    ),
-    paymentQ.createChoice(
-      'I will need assistance for payment.',
-      FormApp.PageNavigationType.SUBMIT
-    ),
-    paymentQ.createChoice(
-      'I am able to pay the camp fee, and I am willing to donate some more to assist in the running of the camp.',
-      donationPage
-    )
-  ]);
-
   // ── Set up "More Campers?" navigation for ALL 9 gateway questions ────────
   for (var i = 0; i < moreCampersItems.length; i++) {
     var q        = moreCampersItems[i];
@@ -932,6 +902,27 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
     '\uD83D\uDCC5 <strong>Registration Deadline:</strong> 19 April 2026<br>' +
     '\uD83D\uDCB3 <strong>Payment Deadline:</strong> 30 April 2026</p></div>' +
 
+    // Payment instructions
+    '<hr style="border:none;border-top:1px solid #ddd;margin:28px 0 20px;">' +
+    '<h3 style="color:#333;margin-bottom:8px;">Payment Instructions</h3>' +
+    '<p style="color:#555;font-size:14px;margin:0 0 12px;">' +
+    'You may pay the camp fees directly to ABC\u2019s BSP, Westpac, or MPAISA accounts:</p>' +
+    '<table style="font-size:13px;color:#3a2000;border-collapse:collapse;margin-bottom:12px;">' +
+    '<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">BSP</td>' +
+    '<td style="padding:4px 0;">A/c&nbsp;# 3178242 &nbsp;&mdash;&nbsp; Advanced Breakthrough Centre</td></tr>' +
+    '<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Westpac</td>' +
+    '<td style="padding:4px 0;">A/c&nbsp;# 9803986679 &nbsp;&mdash;&nbsp; Advanced Breakthrough Centre</td></tr>' +
+    '<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">MPAISA</td>' +
+    '<td style="padding:4px 0;">Merchant Name: Advanced Breakthrough Centre</td></tr>' +
+    '</table>' +
+    '<p style="color:#555;font-size:14px;margin:0 0 6px;">' +
+    '<strong>Narration:</strong> Please put the word <strong>CAMP</strong> followed by your family ' +
+    'surname (e.g. <em>CAMPTakalaivuna</em>).</p>' +
+    '<p style="color:#555;font-size:14px;margin:0 0 20px;">' +
+    'Once payment is made, please send the transfer receipt to ' +
+    '<a href="mailto:finance@advancedbreakthroughcentre.org" style="color:#555;">' +
+    'finance@advancedbreakthroughcentre.org</a>.</p>' +
+
     // Payment confirmation buttons (only shown if WEBAPP_URL is configured)
     (WEBAPP_URL ? (function () {
       var enc       = encodeURIComponent;
@@ -955,8 +946,7 @@ function buildConfirmationHtml_(guardianName, guardianEmail, campers, totalFee) 
         btn(donateUrl, '#3a6a9c', 'I can pay and I\'d like to donate more') +
         '</div>' +
         '<p style="color:#999;font-size:12px;margin-top:12px;">' +
-        'If you already selected your payment option in the registration form, ' +
-        'you do not need to click again.</p>';
+        'Please click only once to record your payment situation.</p>';
     })() : '') +
 
     // Contacts
@@ -1028,6 +1018,23 @@ function buildConfirmationText_(guardianName, guardianEmail, campers, totalFee) 
     'IMPORTANT DEADLINES',
     '  Registration Deadline : 19 April 2026',
     '  Payment Deadline      : 30 April 2026',
+    '',
+    'PAYMENT INSTRUCTIONS',
+    '--------------------',
+    'You may pay the camp fees to any of the following accounts:',
+    '',
+    '  BSP     – A/c# 3178242',
+    '  A/c Name: Advanced Breakthrough Centre',
+    '',
+    '  Westpac – A/c# 9803986679',
+    '  A/c Name: Advanced Breakthrough Centre',
+    '',
+    '  MPAISA  – Merchant Name: Advanced Breakthrough Centre',
+    '',
+    'Narration: CAMP + family surname (e.g. CAMPTakalaivuna)',
+    '',
+    'Once payment is made, please send the receipt to:',
+    '  finance@advancedbreakthroughcentre.org',
     '',
     'PAYMENT CONFIRMATION',
     'Please click one of the links below to indicate your payment situation:',
