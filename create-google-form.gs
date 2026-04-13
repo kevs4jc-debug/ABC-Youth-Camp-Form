@@ -786,12 +786,11 @@ function onFormSubmit(e) {
     var guardianEmail = responses['Email Address'];
     if (!guardianEmail) return; // nothing to send to
 
-    var numCampersRaw = responses['How many campers will you be registering?'] || '1 Camper';
-    var numCampers    = parseInt(numCampersRaw, 10) || 1;
-
-    // Collect per-camper data
+    // Collect per-camper data — loop all slots; skip any that were not filled in.
+    // Do NOT cap by the dropdown answer: a registrant may select "2 campers" but
+    // then continue adding more via "Yes, register another camper" navigation.
     var campers = [];
-    for (var n = 1; n <= numCampers; n++) {
+    for (var n = 1; n <= TOTAL_CAMPERS; n++) {
       var lbl = 'Camper ' + n;
       var name = responses[lbl + "'s Full Name"];
       if (!name) continue; // skip if section was left blank
